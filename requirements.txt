@@ -1,3 +1,4 @@
+pyopenssl
 cryptography
 pynacl
 netifaces
