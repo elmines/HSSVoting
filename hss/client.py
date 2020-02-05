@@ -1,0 +1,2 @@
+class VotingClient(object):
+    pass

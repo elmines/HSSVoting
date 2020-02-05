@@ -1,0 +1,2 @@
+class VotingRepository(object):
+    pass
