@@ -1,55 +1,79 @@
 #!/usr/bin/python3.7
 
 # Python Library
-import asyncio
-import argparse
+import secrets
 import random
+from functools import reduce
+import pdb
 
 # Local
-from hss import *
+from algebra import *
 
-async def main(args):
-    n = args.n
-    m = args.m
-    seed = args.seed
-    assert n >= m
-    assert n % m == 0
-    identity = lambda x, key: x
+def elgamal_key(q):
+    x = 1 + secrets.randbelow(q - 1)
+    x = ModularInt(x, q)
+    return x
 
-    # Launch servers
-    eks = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]
-    servers = []
-    for i in range(m):
-        servers.append( VotingServer(eks[i], identity) )
+class SimpleServer(object):
 
-    
-    # Launch clients
-    pk = 37
-    random.seed(seed)
-    inputs = [random.randrange(0, 50) for _ in range(m*n)]
+    def __init__(self):
+        self.q = 115249
+        self.g = ModularInt(5, self.q) # The generator
+        self._x = elgamal_key(self.q)   # The private key
+        self.h = self.g ** self._x
+
+        # (q, g, h) collectively form the public key
+
+    def compute(self, ciphertexts):
+
+        # The product operation
+        cipher_prod = reduce(lambda x,y: (x[0]*y[0], x[1]*y[1]), ciphertexts)
+        (c1, c2) = cipher_prod
+
+        print("SERVER")
+        print("------")
+        sum_y = discrete_log(self.g, c1)
+        print(f"sum_y = {sum_y}")
+
+        # s = c1**self._x
+        # We don't actually have to compute it, though
+        s_inv = c1**(self.q - self._x)
+
+        g_m = c2 * s_inv
+        m = discrete_log(self.g, g_m)
+
+        return m
+
+class SimpleClient(object):
+    def __init__(self, message, q, g, h):
+        y = elgamal_key(q) # The ephemeral key
+        s = h**y           # The shared secret
+        self.ciphertext = (g**y, (g**message) * s)
+
+        self._message = message
+        self._y = y
+        self._s = s
+
+def main():
+    random.seed(0)
+    server = SimpleServer()
     clients = []
-    for i in range(n):
-        c = VotingClient(pk, identity, sum, inputs[i*m:i*m+m], servers)
-        clients.append(c)
+    correct = 0
 
-    # Send the shares
-    for c in clients:
-        await c.snd_shares()
+    #pdb.set_trace()
+    for _ in range(10):
+        vote = random.randrange(0, 2)
+        correct += vote
+        clients.append(SimpleClient(vote, server.q, server.g, server.h))
 
-    correct = sum(inputs)
-    print(f"Correct output: {correct}")
-    # Receive back the partial results and compute the output
-    for (i, c) in enumerate(clients):
-        output = await c.compute_output()
-        print(f"Client {i}: output = {output}")
+    print("CLIENT")
+    print("------")
+    sum_y = sum(client._y for client in clients)
+    print(f"sum_y = {sum_y}")
+
+    result = server.compute( map(lambda c: c.ciphertext, clients) )
+    print(f"{result} vs. {correct}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Simulate HSS-based voting")
-    parser.add_argument("-n", type=int, default=8, help="Number of clients voting")
-    parser.add_argument("-m", type=int, default=4, help="Number of servers")
-
-    parser.add_argument("--seed", type=int, default=0, help="Random seed for operations like generating votes (but not keys)")
-
-    args = parser.parse_args()
-    asyncio.run(main(args))
+    main()
