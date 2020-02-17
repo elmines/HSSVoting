@@ -22,24 +22,21 @@ class SimpleServer(object):
         x = elgamal_key(q)
         h = g ** x
 
+        # The private key
+        self._x = x    # The private key
+
+        # The public key
         self.q = q
         self.g = g 
-        self._x = x    # The private key
         self.h = h
 
-        # (q, g, h) collectively form the public key
 
-    def compute(self, ciphertexts, s=None, y=None):
-        # The product operation--homomorphic to addition in the plaintext space
-        cipher_prod = reduce(lambda x,y: (x[0]*y[0], x[1]*y[1]), ciphertexts)
-        (c1, c2) = cipher_prod
-
+    def compute(self, ciphertext):
+        (c1, c2) = ciphertext
         # Wikipedia is wrong--we need this -1
         s_inv = c1**(self.q - 1 - self._x)
-
         g_m = c2 * s_inv
         m = discrete_log(self.g, g_m)
-
         return m
 
 class SimpleClient(object):
@@ -57,9 +54,16 @@ def main():
         correct += vote
         print(f"Client {i+1}: casting \"{'Yes' if vote else 'No'}\"")
         clients.append(SimpleClient(vote, server.q, server.g, server.h, x=server._x))
-    result = server.compute(map(lambda c: c.ciphertext, clients))
 
-    print(f"Correct total = {correct}")
+
+    # Clients aggregate their encrypted votes
+    # The other clients can't decrypt the votes without the private key
+    # The server will just see one total upon decryption
+    ciphertexts = map(lambda c: c.ciphertext, clients)
+    cipher_prod = reduce(lambda x,y: (x[0]*y[0], x[1]*y[1]), ciphertexts)
+    result = server.compute(cipher_prod)
+
+    print(f"Correct total: {correct}")
     print(f"Total computed via homomorphic encryption: {result}")
 
 
