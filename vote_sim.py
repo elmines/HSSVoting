@@ -26,19 +26,17 @@ class SimpleServer(object):
         self.g = g 
         self._x = x    # The private key
         self.h = h
-        print(f"q={self.q}, g={self.g}, x={self._x}, h={self.h}")
 
         # (q, g, h) collectively form the public key
 
     def compute(self, ciphertexts, s=None, y=None):
-        # The product operation
+        # The product operation--homomorphic to addition in the plaintext space
         cipher_prod = reduce(lambda x,y: (x[0]*y[0], x[1]*y[1]), ciphertexts)
         (c1, c2) = cipher_prod
 
-        # Wikipedia was wrong--we need this -1
+        # Wikipedia is wrong--we need this -1
         s_inv = c1**(self.q - 1 - self._x)
 
-        assert s_inv * s == 1
         g_m = c2 * s_inv
         m = discrete_log(self.g, g_m)
 
@@ -50,22 +48,19 @@ class SimpleClient(object):
         s = h**y           # The shared secret
         self.ciphertext = (g**y, (g**message) * s)
 
-        self._message = message
-        self._y = y
-        self._s = s
-        print(f"y={y}, s={s}, m={self._message} c1={self.ciphertext[0]}, c2={self.ciphertext[1]}")
-
-
 def main():
     server = SimpleServer()
     clients = []
     correct = 0
-    for _ in range(1):
+    for i in range(10):
         vote = random.randrange(0, 2)
         correct += vote
+        print(f"Client {i+1}: casting \"{'Yes' if vote else 'No'}\"")
         clients.append(SimpleClient(vote, server.q, server.g, server.h, x=server._x))
-    result = server.compute( map(lambda c: c.ciphertext, clients), y=clients[0]._y, s=clients[0]._s )
-    print(f"{result} vs. {correct}")
+    result = server.compute(map(lambda c: c.ciphertext, clients))
+
+    print(f"Correct total = {correct}")
+    print(f"Total computed via homomorphic encryption: {result}")
 
 
 if __name__ == "__main__":
