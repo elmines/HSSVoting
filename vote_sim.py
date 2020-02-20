@@ -7,7 +7,10 @@ from functools import reduce
 import pdb
 
 # Local
-from algebra import *
+from algebra import ModularInt
+import algebra
+
+import pdb
 
 def elgamal_key(q):
     x = 1 + secrets.randbelow(q - 1)
@@ -17,43 +20,69 @@ def elgamal_key(q):
 class SimpleServer(object):
 
     def __init__(self):
-        q = 17
-        g = ModularInt(5, q) # 5 does generate Z_{17}^*
-        x = elgamal_key(q)
-        h = g ** x
+        #(p, q) = algebra.distinct_primes(upper_bound=1500)
+
+        p = 1009
+        q = 1013
+        n = p*q # The order of our group
+        k = algebra.infer_generator(p, q, iterations=3)
+        k = ModularInt(k, n)
+
+        x = elgamal_key(n)
+        h = k ** x
 
         # The private key
-        self._x = x    # The private key
+        self._x = x
 
         # The public key
-        self.q = q
-        self.g = g 
+        self.n = n
+        self.k = k 
         self.h = h
 
+        assert isinstance(k, ModularInt)
+        assert isinstance(h, ModularInt)
+        assert isinstance(x, ModularInt)
 
-    def compute(self, ciphertext):
+        print(f"DEBUG: p={p},q={q},k={k},x={x}")
+
+    def compute(self, ciphertext, s=None): #FIXME: The extra "s" param is for debugging
         (c1, c2) = ciphertext
-        # Wikipedia is wrong--we need this -1
-        s_inv = c1**(self.q - 1 - self._x)
-        g_m = c2 * s_inv
-        m = discrete_log(self.g, g_m)
+        s_inv = c1**(self.n - 1 - self._x)
+
+        #FIXME: Debugging
+        assert isinstance(s_inv, ModularInt)
+        
+        # This assertion is failing currently
+        #assert s * s_inv == 1
+
+        k_m = c2 * s_inv
+        m = algebra.discrete_log(self.k, k_m)
         return m
 
 class SimpleClient(object):
-    def __init__(self, message, q, g, h, x=None):
-        y = elgamal_key(q) # The ephemeral key
+    def __init__(self, message, n, k, h):
+        y = elgamal_key(n) # The ephemeral key
         s = h**y           # The shared secret
-        self.ciphertext = (g**y, (g**message) * s)
+        (c1,c2) = (k**y, (k**message) * s)
+        self.ciphertext = (c1,c2)
+
+        #FIXME: Here only for debugging
+        print(f"DEBUG: y={y}, s={s}, cipertext={self.ciphertext}")
+        assert isinstance(c1, ModularInt)
+        assert isinstance(c2,ModularInt)
+        assert isinstance(s, ModularInt)
+        self._s = s
 
 def main():
     server = SimpleServer()
     clients = []
     correct = 0
-    for i in range(10):
+    n = 5
+    for i in range(n):
         vote = random.randrange(0, 2)
         correct += vote
         print(f"Client {i+1}: casting \"{'Yes' if vote else 'No'}\"")
-        clients.append(SimpleClient(vote, server.q, server.g, server.h, x=server._x))
+        clients.append(SimpleClient(vote, server.n, server.k, server.h))
 
 
     # Clients aggregate their encrypted votes
@@ -61,7 +90,7 @@ def main():
     # The server will just see one total upon decryption
     ciphertexts = map(lambda c: c.ciphertext, clients)
     cipher_prod = reduce(lambda x,y: (x[0]*y[0], x[1]*y[1]), ciphertexts)
-    result = server.compute(cipher_prod)
+    result = server.compute(cipher_prod, s=clients[0]._s)
 
     print(f"Correct total: {correct}")
     print(f"Total computed via homomorphic encryption: {result}")
