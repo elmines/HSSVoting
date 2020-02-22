@@ -1,4 +1,5 @@
 import operator
+from functools import reduce
 
 class ModularInt(object):
 
@@ -38,7 +39,8 @@ class ModularInt(object):
 
     def __pow__(self, exponent) -> "ModularInt":
         if type(exponent) == ModularInt: exponent = exponent.value
-        return ModularInt(self.value ** exponent, self.divisor)
+        result = modular_exp(self.value, exponent, self.divisor)
+        return ModularInt(result, self.divisor)
 
     def __iadd__(self, addend) -> "ModularInt":
         return self._inplace_op(addend, operator.add)
@@ -70,5 +72,8 @@ class ModularInt(object):
             lhs = lhs.value
         return ModularInt(op(lhs, self.value), self.divisor)
 
+def modular_exp(base, exp, divisor):
+    inds = [i for (i, bit) in enumerate( bin(exp)[:1:-1] ) if int(bit)]
+    return reduce(lambda accum, ind: accum * base**2**ind % divisor, inds, 1)
 
 __all__ = ["ModularInt"]
