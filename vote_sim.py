@@ -20,13 +20,11 @@ def elgamal_key(q):
 class SimpleServer(object):
 
     def __init__(self):
-        #(p, q) = algebra.distinct_primes(upper_bound=1500)
+        n = 29
+        k = ModularInt(5, n)
 
-        p = 1009
-        q = 1013
-        n = p*q # The order of our group
-        k = algebra.infer_generator(p, q, iterations=3)
-        k = ModularInt(k, n)
+        exponentiated = k**n
+        assert exponentiated == k # Necessary condition for being a generator
 
         x = elgamal_key(n)
         h = k ** x
@@ -43,18 +41,9 @@ class SimpleServer(object):
         assert isinstance(h, ModularInt)
         assert isinstance(x, ModularInt)
 
-        print(f"DEBUG: p={p},q={q},k={k},x={x}")
-
-    def compute(self, ciphertext, s=None): #FIXME: The extra "s" param is for debugging
+    def compute(self, ciphertext):
         (c1, c2) = ciphertext
         s_inv = c1**(self.n - 1 - self._x)
-
-        #FIXME: Debugging
-        assert isinstance(s_inv, ModularInt)
-        
-        # This assertion is failing currently
-        #assert s * s_inv == 1
-
         k_m = c2 * s_inv
         m = algebra.discrete_log(self.k, k_m)
         return m
@@ -65,13 +54,6 @@ class SimpleClient(object):
         s = h**y           # The shared secret
         (c1,c2) = (k**y, (k**message) * s)
         self.ciphertext = (c1,c2)
-
-        #FIXME: Here only for debugging
-        print(f"DEBUG: y={y}, s={s}, cipertext={self.ciphertext}")
-        assert isinstance(c1, ModularInt)
-        assert isinstance(c2,ModularInt)
-        assert isinstance(s, ModularInt)
-        self._s = s
 
 def main():
     server = SimpleServer()
@@ -90,7 +72,7 @@ def main():
     # The server will just see one total upon decryption
     ciphertexts = map(lambda c: c.ciphertext, clients)
     cipher_prod = reduce(lambda x,y: (x[0]*y[0], x[1]*y[1]), ciphertexts)
-    result = server.compute(cipher_prod, s=clients[0]._s)
+    result = server.compute(cipher_prod)
 
     print(f"Correct total: {correct}")
     print(f"Total computed via homomorphic encryption: {result}")
