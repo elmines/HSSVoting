@@ -22,7 +22,7 @@ in the Miller-Rabbin test to ensure "p" is prime where p < n
 def infer_generator(p: int, q: int, iterations=3) -> int:
     candGens = []
     for i in range(iterations):
-        k = (p+1) + secrets.randbelow( (p*q+1) - (p+1) ) # Sample k in (p,p*q]
+        k = (p+1) + secrets.randbelow( (p*q) - (p+1) ) # Sample k in (p,p*q)
         candGens.append(k)
     return secrets.choice(candGens)
 

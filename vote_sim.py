@@ -7,7 +7,7 @@ from functools import reduce
 import pdb
 
 # Local
-from algebra import ModularInt
+from algebra import ModularInt, infer_generator
 import algebra
 
 import pdb
@@ -20,16 +20,23 @@ def elgamal_key(q):
 class SimpleServer(object):
 
     def __init__(self):
-        n = 29
-        k = ModularInt(5, n)
+        p = 1009
+        q = 1013
+        n = p*q
 
-        exponentiated = k**n
-        assert exponentiated == k # Necessary condition for being a generator
+        k = infer_generator(p, q)
+        assert k%p != 0
+        assert k%q != 0
+        k = ModularInt(k, n)
+        print(f"p={p},q={q}k={k}")
+
 
         x = elgamal_key(n)
         h = k ** x
 
         # The private key
+        self._p = p
+        self._q = q
         self._x = x
 
         # The public key
@@ -43,7 +50,7 @@ class SimpleServer(object):
 
     def compute(self, ciphertext):
         (c1, c2) = ciphertext
-        s_inv = c1**(self.n - 1 - self._x)
+        s_inv = c1**( (self._p-1)*(self._q-1) - self._x)
         k_m = c2 * s_inv
         m = algebra.discrete_log(self.k, k_m)
         return m
