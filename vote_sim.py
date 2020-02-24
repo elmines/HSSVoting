@@ -4,13 +4,11 @@
 import secrets
 import random
 from functools import reduce
-import pdb
+from time import time
 
 # Local
-from algebra import ModularInt, infer_generator
+from algebra import ModularInt, infer_generator, is_generator
 import algebra
-
-import pdb
 
 def elgamal_key(q):
     x = 1 + secrets.randbelow(q - 1)
@@ -25,11 +23,11 @@ class SimpleServer(object):
         n = p*q
 
         k = infer_generator(p, q)
-        assert k%p != 0
-        assert k%q != 0
+        k_attempts = 1
+        while not is_generator(k, p, q):
+            k = infer_generator(p,q)
+            k_attempts += 1
         k = ModularInt(k, n)
-        print(f"p={p},q={q}k={k}")
-
 
         x = elgamal_key(n)
         h = k ** x
@@ -44,9 +42,8 @@ class SimpleServer(object):
         self.k = k 
         self.h = h
 
-        assert isinstance(k, ModularInt)
-        assert isinstance(h, ModularInt)
-        assert isinstance(x, ModularInt)
+        self._k_attempts = k_attempts
+
 
     def compute(self, ciphertext):
         (c1, c2) = ciphertext
@@ -62,13 +59,15 @@ class SimpleClient(object):
         (c1,c2) = (k**y, (k**message) * s)
         self.ciphertext = (c1,c2)
 
-def main():
+        self._y = y
+
+def simulation(n_clients=10):
+    duration = -time()
     server = SimpleServer()
-    clients = []
+    votes = [random.randrange(0, 2) for _ in range(n_clients)]
     correct = 0
-    n = 5
-    for i in range(n):
-        vote = random.randrange(0, 2)
+    clients = []
+    for (i,vote) in enumerate(votes):
         correct += vote
         print(f"Client {i+1}: casting \"{'Yes' if vote else 'No'}\"")
         clients.append(SimpleClient(vote, server.n, server.k, server.h))
@@ -80,9 +79,25 @@ def main():
     ciphertexts = map(lambda c: c.ciphertext, clients)
     cipher_prod = reduce(lambda x,y: (x[0]*y[0], x[1]*y[1]), ciphertexts)
     result = server.compute(cipher_prod)
+    duration += time()
 
-    print(f"Correct total: {correct}")
-    print(f"Total computed via homomorphic encryption: {result}")
+    entries = []
+    for u in [server._p, server._q, server.n, server.k, server._k_attempts, server._x, n_clients]:
+        entries.append(str(u))
+    entries.append("".join(str(v) for v in votes))     
+    entries.append(" ".join(str(client._y) for client in clients))
+    entries.append(str(result))
+    entries.append(str(duration))
+    return entries
+
+def main(out_path="sim_log.csv", iterations=10):
+    with open(out_path, "w", encoding="utf-8") as f:
+        headers = ["p","q","n", "k", "k_attempts", "x", "clients", "votes", "ys", "result", "seconds"]
+        f.write( ",".join(headers) )
+        for i in range(iterations):
+            print(f"SIMULATION {i}")
+            entries = simulation()
+            f.write("\n" + ",".join(entries))
 
 
 if __name__ == "__main__":

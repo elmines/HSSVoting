@@ -18,13 +18,11 @@ Mapping from integer "n" to bases "a"  we must check
 in the Miller-Rabbin test to ensure "p" is prime where p < n
 """
 
+def is_generator(g: int, p: int, q: int) -> bool:
+    return (g%p) and (g%q)
 
-def infer_generator(p: int, q: int, iterations=3) -> int:
-    candGens = []
-    for i in range(iterations):
-        k = (p+1) + secrets.randbelow( (p*q) - (p+1) ) # Sample k in (p,p*q)
-        candGens.append(k)
-    return secrets.choice(candGens)
+def infer_generator(p: int, q: int) -> int:
+    return (p+1) + secrets.randbelow( (p*q) - (p+1) ) # Sample k in (p,p*q)
 
 def random_prime(lower_bound: int = 1013, upper_bound: int = None) -> int:
     if not upper_bound: upper_bound = min(bound_dict.keys())
