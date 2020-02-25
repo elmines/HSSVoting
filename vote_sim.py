@@ -7,7 +7,7 @@ from functools import reduce
 from time import time
 
 # Local
-from algebra import ModularInt, infer_generator, is_generator
+from algebra import ModularInt, infer_generator, is_generator, random_prime
 import algebra
 
 def elgamal_key(q):
@@ -18,8 +18,13 @@ def elgamal_key(q):
 class SimpleServer(object):
 
     def __init__(self):
-        p = 1009
-        q = 1013
+        p = random_prime()
+        q = random_prime()
+        while q == p: q = random_prime()
+        if p > q:
+            temp = p
+            p = q
+            q = temp
         n = p*q
 
         k = infer_generator(p, q)

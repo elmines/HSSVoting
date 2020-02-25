@@ -2,6 +2,7 @@
 # Python Library
 import secrets
 from typing import Iterable, Callable, Tuple, Dict, List
+import math
 
 
 MIN_PRIME_BOUND: int = 2047
@@ -18,6 +19,16 @@ Mapping from integer "n" to bases "a"  we must check
 in the Miller-Rabbin test to ensure "p" is prime where p < n
 """
 
+def brute_prime_test(n) -> bool:
+    lim = int(math.sqrt(n)) + 1
+    i = 3
+    while i <= lim:
+        if n % i == 0:
+            print(f"{n} failed since has factor {i}")
+            return False
+        i += 2
+    return True
+
 def is_generator(g: int, p: int, q: int) -> bool:
     return (g%p) and (g%q)
 
@@ -29,6 +40,7 @@ def random_prime(lower_bound: int = 1013, upper_bound: int = None) -> int:
     prime_gen = rand_range(lower_bound, upper_bound)
     x = prime_gen()
     while not bounded_miller_test(x, bound=upper_bound):
+    #while not unbounded_miller_test(x):
         x = prime_gen()
     return x
 
@@ -61,18 +73,20 @@ def miller_test(n: int, bases: Iterable[int]) -> bool:
 
     assert n == 2**r * d + 1
 
-    continue_base_loop = True
     for a in bases:
         x = (a**d) % n
         if x in {1, n-1}: continue
         for i in range(r-1):
             x = (x**2) % n
             if x == n - 1: break
-            continue_base_loop = False
-        if not continue_base_loop:
-            return False
+        if x != n - 1: return False
     return True
 
+def unbounded_miller_test(n: int) -> bool:
+    lim = int(math.floor(2 * (math.log(n))**2))
+    lim = min(n-2, lim)
+    bases = range(2, lim + 1)
+    return miller_test(n, bases)
 
 def bounded_miller_test(n: int, bound=None) -> bool:
     """
