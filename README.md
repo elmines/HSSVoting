@@ -5,8 +5,7 @@ Using HSS to preserve privacy in voting
 - Python 3.7 or later
 - Everything in the requirements file: `pip3 install -r requirements.txt`
 
-## Using the Library
-```[python]
-import hss
-# Insert cool library calls here
+## Run a Demo
+```
+python3 vote_sim.py
 ```
