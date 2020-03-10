@@ -76,4 +76,9 @@ def modular_exp(base, exp, divisor):
     inds = [i for (i, bit) in enumerate( bin(exp)[:1:-1] ) if int(bit)]
     return reduce(lambda accum, ind: accum * base**2**ind % divisor, inds, 1)
 
-__all__ = ["ModularInt"]
+MInt = ModularInt
+"""
+Type alias for purposes of brevity in documenation
+"""
+
+__all__ = ["ModularInt", "MInt"]
