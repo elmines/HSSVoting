@@ -1,5 +1,5 @@
 from typing import Tuple
-from algebra import ModularInt, MInt
+from algebra import ModularInt, MInt, random_prime, infer_generator
 
 def elgamal_key(n) -> ModularInt:
     """
@@ -22,7 +22,7 @@ def cryptosystem(security: int) -> Tuple[MInt,MInt,MInt,MInt]:
     while not is_generator(g, p, q):
         g = infer_generator(p,q)
         g_attempts += 1
-    g = ModularInt(k, n)
+    g = ModularInt(g, n)
 
     c = elgamal_key(n)
     e = g ** c
