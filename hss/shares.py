@@ -1,5 +1,5 @@
 # Python Library
-from typing import Tuple, List
+from typing import Tuple, List, Generator
 from itertools import starmap
 from math import log
 import secrets
@@ -7,20 +7,8 @@ import secrets
 # Local
 from algebra import ModularInt, MInt
 from .elgamal import cryptosystem, enc_elgamal
+from .types import *
 
-PK = Tuple[int,ModularInt,ModularInt,ModularInt,List[ModularInt]]
-"""
-A tuple (n, generator, encryption key, 1_enc, c_encs)
-
-n is the divisor for the three modular integers.
-1_enc is the ElGamal encryption of 1 given the encryption key.
-c_encs are the ElGamal encryptions of the individual bits of the secret key c.
-"""
-
-EK = Tuple[PK, ModularInt, ModularInt]
-"""
-A tuple (public key, <1>, <c>) where <x> is an additive share of x
-"""
 
 def additive_share(x: ModularInt) -> Tuple[ModularInt,ModularInt]:
     x0 = ModularInt(secrets.randbelow(n), n)
@@ -33,7 +21,7 @@ def bit_length(x: int) -> int:
 def biterate(x: ModularInt) -> Generator[int,None,None]:
     l = bit_length(x.divisor)
     x = int(x)
-    for i in range(l)
+    for i in range(l):
         yield 1 & (x >> i)
 
 
@@ -86,6 +74,6 @@ def mult_shares(x_enc: ModularInt, y_share: ModularInt, cy_share: ModularInt) ->
     xy_mult_share = a * b
     return xy_mult_share
 
-def convert_shares(b: int, share: ModularInt, instr_id: int, error_toler: float, M: int):
+def convert_shares(b: int, share: ModularInt, instr_id: Tuple[int,int], δ: float, M: int):
     assert b in {0,1}
     pass

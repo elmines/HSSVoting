@@ -1,5 +1,8 @@
 import operator
 from functools import reduce
+from collections import namedtuple
+
+ModularGroup = namedtuple("ModularGroup", ["divisor", "order", "generator"])
 
 class ModularInt(object):
 
@@ -81,4 +84,4 @@ MInt = ModularInt
 Type alias for purposes of brevity in documenation
 """
 
-__all__ = ["ModularInt", "MInt"]
+__all__ = ["ModularGroup", "ModularInt", "MInt"]
