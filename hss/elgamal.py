@@ -1,20 +1,20 @@
+import secrets
 from typing import Tuple
-from algebra import ModularGroup, ModularInt, MInt, random_prime, infer_generator
+from algebra import ModularGroup, ModularInt, MInt, crypto_prime, infer_generator, is_generator, discrete_log
 
 def elgamal_key(n) -> ModularInt:
     """
-    :param n: The group order
+    :param n: The group divisor
     """
-    n = 1 + secrets.randbelow(n - 1)
-    n = ModularInt(x, n)
-    return n
+    x = 1 + secrets.randbelow(n - 1)
+    x = ModularInt(x, n)
+    return x
 
-def cryptosystem(λ: int) -> Tuple[MInt,MInt,MInt,MInt]:
-    #TODO: Use security parameter
-    p = random_prime()
-    q = random_prime()
+def cryptosystem(λ: int) -> Tuple[ModularGroup,MInt,MInt]:
+    p = crypto_prime(λ)
+    q = crypto_prime(λ)
 
-    while q == p: q = random_prime()
+    while q == p: q = crypto_prime(λ)
     n = p*q
 
     g = infer_generator(p, q)
@@ -38,4 +38,11 @@ def enc_elgamal(g: ModularInt, e: ModularInt, w: int) -> Tuple[MInt,MInt]:
     c2 = e**y * w
     return (c1, c2)
 
-
+def dec_elgamal(G: ModularGroup, c: ModularInt, ct) -> ModularInt:
+    order = G.order
+    g = G.generator
+    (c1, c2) = ct
+    s_inv = c1**( order - c )
+    g_pow_m = c2 * s_inv
+    m = discrete_log(g, g_pow_m)
+    return m

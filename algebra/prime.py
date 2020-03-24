@@ -35,12 +35,24 @@ def is_generator(g: int, p: int, q: int) -> bool:
 def infer_generator(p: int, q: int) -> int:
     return (p+1) + secrets.randbelow( (p*q) - (p+1) ) # Sample k in (p,p*q)
 
+def crypto_prime(λ: int) -> int:
+    upper_bound = 2**λ
+    return random_prime(2, upper_bound)
+
+def best_bound(upper_bound: int):
+    if upper_bound in bound_dict.keys(): return upper_bound
+    cands = [k for k in bound_dict.keys() if k >= upper_bound]
+    if not cands: return None
+    return min(cands)
+
 def random_prime(lower_bound: int = 1013, upper_bound: int = None) -> int:
     if not upper_bound: upper_bound = min(bound_dict.keys())
     prime_gen = rand_range(lower_bound, upper_bound)
+    loose_upper = best_bound(upper_bound)
+    if loose_upper is None: raise Exception(f"We don't have a bound high enough for {upper_bound}")
+    bases = bound_dict[loose_upper]
     x = prime_gen()
-    while not bounded_miller_test(x, bound=upper_bound):
-    #while not unbounded_miller_test(x):
+    while not miller_test(x, bases):
         x = prime_gen()
     return x
 
@@ -95,5 +107,5 @@ def bounded_miller_test(n: int, bound=None) -> bool:
     """
     if bound is None or bound < min(bound_dict.keys()):
         bound = min(bound_dict.keys())
-    assert n < bound
+    bound = best_bound(bound)
     return miller_test(n, bound_dict[bound])

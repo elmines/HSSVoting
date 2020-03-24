@@ -78,9 +78,22 @@ class ModularInt(object):
     def __int__(self) -> int:
         return self.value
 
-def modular_exp(base, exp, divisor):
-    inds = [i for (i, bit) in enumerate( bin(exp)[:1:-1] ) if int(bit)]
-    return reduce(lambda accum, ind: accum * base**2**ind % divisor, inds, 1)
+def modular_exp(base, exp, divisor, repeat_squaring=True):
+    return (base**exp) % divisor
+
+"""
+def _modular_exp_helper(base, exp, divisor, memo=None):
+    if exp in memo: return memo[exp]
+    start = max(k for k in memo.keys() if k < exp)
+    accum = memo[start]
+    i = start
+    while i*2 < exp:
+        i *= 2
+        memo[i*2] = (memo[i] * memo[i]) % divisor
+        accum = memo[i]
+    return accum * _modular_exp_helper(base, exp - i, divisor, memo)
+"""
+
 
 MInt = ModularInt
 """

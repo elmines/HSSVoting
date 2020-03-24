@@ -35,7 +35,7 @@ def biterate(x: ModularInt) -> Generator[int,None,None]:
 def bitwise_enc(g, e, c) -> List[ModularInt]:
     return [enc_elgamal(g, e, c_t) for c_t in biterate(c)]
 
-def gen(λ: int = 128) -> Tuple[PK,EK,EK]:
+def gen(λ) -> Tuple[PK,EK,EK]:
     """
     :returns: Tuple of (public key, eval key 1, eval key 2)
     """

@@ -2,23 +2,11 @@
 import unittest
 
 import algebra
-from algebra import bounded_miller_test
 from hss import make_sum_program
 
 from .shares import *
-
-
-class PrimeGeneration(unittest.TestCase):
-    def test_low_bound(self):
-        cases = [13, 1093, 55987, 131071, 132049, 524287]
-        for n in cases:
-            result = bounded_miller_test(n, bound=algebra.SIMPLE_PRIME_BOUND)
-            self.assertTrue(result)
-
-        comps = [2**8 * 5, 3**4 * 2**3, 1 * 2 * 3 * 4 * 5 * 6 * 7 * 8]
-        for comp in comps:
-            result = bounded_miller_test(comp, bound=algebra.SIMPLE_PRIME_BOUND)
-            self.assertFalse(result)
+from .prime import *
+from .elgamal import *
 
 class Metaprogramming(unittest.TestCase):
     def test_make_sum(self):
