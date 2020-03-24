@@ -1,10 +1,11 @@
 #!/usr/bin/python3.7
-
 import unittest
 
 import algebra
 from algebra import bounded_miller_test
 from hss import make_sum_program
+
+from .shares import *
 
 
 class PrimeGeneration(unittest.TestCase):

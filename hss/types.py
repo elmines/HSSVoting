@@ -1,9 +1,9 @@
 from typing import Tuple, Union, List
-from algebra import ModularInt
+from algebra import ModularGroup, ModularInt
 
-PK = Tuple[int,ModularInt,ModularInt,ModularInt,List[ModularInt]]
+PK = Tuple[ModularGroup,ModularInt,ModularInt,List[ModularInt]]
 """
-A tuple (n, generator, encryption key, 1_enc, c_encs)
+A tuple (group, encryption key, 1_enc, c_encs)
 
 n is the divisor for the three modular integers.
 1_enc is the ElGamal encryption of 1 given the encryption key.

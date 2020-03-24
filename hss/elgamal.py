@@ -1,5 +1,5 @@
 from typing import Tuple
-from algebra import ModularInt, MInt, random_prime, infer_generator
+from algebra import ModularGroup, ModularInt, MInt, random_prime, infer_generator
 
 def elgamal_key(n) -> ModularInt:
     """
@@ -9,7 +9,7 @@ def elgamal_key(n) -> ModularInt:
     n = ModularInt(x, n)
     return n
 
-def cryptosystem(security: int) -> Tuple[MInt,MInt,MInt,MInt]:
+def cryptosystem(λ: int) -> Tuple[MInt,MInt,MInt,MInt]:
     #TODO: Use security parameter
     p = random_prime()
     q = random_prime()
@@ -27,7 +27,9 @@ def cryptosystem(security: int) -> Tuple[MInt,MInt,MInt,MInt]:
     c = elgamal_key(n)
     e = g ** c
 
-    return (n, g, e, c)
+    G = ModularGroup(divisor=n, order=(p-1)*(q-1), generator=g)
+
+    return (G, e, c)
 
 def enc_elgamal(g: ModularInt, e: ModularInt, w: int) -> Tuple[MInt,MInt]:
     n = e.divisor

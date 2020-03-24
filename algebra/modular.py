@@ -75,6 +75,9 @@ class ModularInt(object):
             lhs = lhs.value
         return ModularInt(op(lhs, self.value), self.divisor)
 
+    def __int__(self) -> int:
+        return self.value
+
 def modular_exp(base, exp, divisor):
     inds = [i for (i, bit) in enumerate( bin(exp)[:1:-1] ) if int(bit)]
     return reduce(lambda accum, ind: accum * base**2**ind % divisor, inds, 1)
