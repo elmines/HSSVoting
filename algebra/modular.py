@@ -18,6 +18,12 @@ class ModularInt(object):
     def divisor(self) -> int:
         return self._divisor
 
+    def inv(self) -> "ModularInt":
+        inv_val = modular_mult_inv(self.value, self.divisor)
+        if inv_val is not None:
+            inv_val = ModularInt(inv_val, self.divisor)
+        return inv_val
+
     def __eq__(self, y) -> bool:
         return self._comp_op(y, operator.eq)
     def __ne__(self, y) -> bool:
@@ -77,6 +83,17 @@ class ModularInt(object):
 
     def __int__(self) -> int:
         return self.value
+
+def modular_mult_inv(value, divisor):
+    A = (0, divisor)
+    B = (1, value)
+    while True:
+        if   B[-1] == 0: return None  # value | divisor
+        elif B[-1] == 1: return B[0]
+        Q = A[-1] // B[-1]
+        T = tuple( a-Q*b for (a,b) in zip(A,B) )
+        A = B
+        B = T
 
 def modular_exp(base, exp, divisor):
     return _modular_exp_helper(base, exp, divisor, {0: 1, 1: base})

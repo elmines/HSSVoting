@@ -83,7 +83,7 @@ def mult_shares(x_enc: ModularInt, y_share: ModularInt, cy_share: ModularInt) ->
 
     a = h_2 ** y_share
 
-    b = inv( h_1 ** cy_share )  #FIXME: inv() is just a placeholder
+    b = (h_1 ** cy_share).inv()
     
     xy_mult_share = a * b
     return xy_mult_share
@@ -101,7 +101,7 @@ def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ: PRF
 def convert_shares(b: int, share: ModularInt, instr_id: Tuple[int,int], δ: float, M: int, G: ModularGroup, φ: PRF):
     assert b in {0,1}
     φ_prime = None #FIXME
-    if b == 1: share = inv(share) #FIXME: Don't have an inverse function
+    if b == 1: share = share.inv()
     i_b = distributed_d_log(G, share, δ, M, φ_prime)
     i_b = ModularInt(i_b, G.divisor)
     additive_share = (G.divisor - i_b) if b == 0 else i_b
