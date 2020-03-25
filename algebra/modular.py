@@ -78,21 +78,20 @@ class ModularInt(object):
     def __int__(self) -> int:
         return self.value
 
-def modular_exp(base, exp, divisor, repeat_squaring=True):
-    return (base**exp) % divisor
+def modular_exp(base, exp, divisor):
+    return _modular_exp_helper(base, exp, divisor, {0: 1, 1: base})
 
-"""
-def _modular_exp_helper(base, exp, divisor, memo=None):
+def _modular_exp_helper(base, exp, divisor, memo):
     if exp in memo: return memo[exp]
     start = max(k for k in memo.keys() if k < exp)
-    accum = memo[start]
     i = start
     while i*2 < exp:
-        i *= 2
         memo[i*2] = (memo[i] * memo[i]) % divisor
-        accum = memo[i]
-    return accum * _modular_exp_helper(base, exp - i, divisor, memo)
-"""
+        accum = memo[i*2]
+        i *= 2
+
+    # Python doesn't optimize tail recursion, so who cares?
+    return memo[i] * _modular_exp_helper(base, exp - i, divisor, memo) % divisor
 
 
 MInt = ModularInt
@@ -100,4 +99,4 @@ MInt = ModularInt
 Type alias for purposes of brevity in documenation
 """
 
-__all__ = ["ModularGroup", "ModularInt", "MInt"]
+__all__ = ["ModularGroup", "ModularInt", "MInt", "modular_exp"]

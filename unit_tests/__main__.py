@@ -7,6 +7,7 @@ from hss import make_sum_program
 from .shares import *
 from .prime import *
 from .elgamal import *
+from .modular import *
 
 class Metaprogramming(unittest.TestCase):
     def test_make_sum(self):
