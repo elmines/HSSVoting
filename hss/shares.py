@@ -35,8 +35,9 @@ def biterate(x: ModularInt) -> Generator[int,None,None]:
 def bitwise_enc(g, e, c) -> List[ModularInt]:
     return [enc_elgamal(g, e, c_t) for c_t in biterate(c)]
 
-def gen(λ) -> Tuple[PK,EK,EK]:
+def gen(λ: int) -> Tuple[PK,EK,EK,PRF]:
     """
+    :param λ: Number of bits of security
     :returns: Tuple of (public key, eval key 1, eval key 2)
     """
     (G, e, c) = cryptosystem(λ)
@@ -53,16 +54,19 @@ def gen(λ) -> Tuple[PK,EK,EK]:
     pk = (G, e, one_enc, c_encs)
     ek_0 = (pk, one_share[0], c_share[0])
     ek_1 = (pk, one_share[1], c_share[1])
-    return (pk, ek_0, ek_1)
+    φ = None #FIXME Generate PRF
+    return (pk, ek_0, ek_1, φ)
 
 def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
-    (n, g, e, _, c_encs) = pk
+    (G, e, _, c_encs) = pk
+    g = G.generator
+    n = G.divisor
     w_enc = enc_elgamal(g, e, w)
 
-    l = bit_length(n)
+    l = bit_length(ModularInt(1, n))
 
     # Compute [[c^(t)*w]]_c for every bit c^(t) of c
-    prod_encs = starmap(lambda h_1,h_2: h_1**w, h_2**w, c_encs)
+    prod_encs = starmap(lambda h_1,h_2: (h_1**w, h_2**w), c_encs)
 
     # For additional randomness, multiply every encryption by an encryption of 0
     # Since multiplication in the ciphertext space is addition in the plaintext space,
