@@ -7,7 +7,7 @@ class Evaluator(object):
     def __init__(group_order: int, g: ModularInt, b: int):
         self.group_order = group_order
         self.g = g
-        self.φ = None #FIXME
+        self.φ = PRFGen()
         self.b = b
 
     def public_key_eval(self, ek: EK, ct: List[Tuple[ModularInt,ModularInt]], program: List[RMSOp], δ: float):

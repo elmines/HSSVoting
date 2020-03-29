@@ -6,7 +6,7 @@ import secrets
 
 # Local
 from algebra import ModularInt, MInt
-from .prf import PRF
+from .prf import *
 from .elgamal import cryptosystem, enc_elgamal
 from .types import *
 
@@ -54,7 +54,7 @@ def gen(λ: int) -> Tuple[PK,EK,EK,PRF]:
     pk = (G, e, one_enc, c_encs)
     ek_0 = (pk, one_share[0], c_share[0])
     ek_1 = (pk, one_share[1], c_share[1])
-    φ = None #FIXME Generate PRF
+    φ = PRFGen() 
     return (pk, ek_0, ek_1, φ)
 
 def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
@@ -88,7 +88,7 @@ def mult_shares(x_enc: ModularInt, y_share: ModularInt, cy_share: ModularInt) ->
     xy_mult_share = a * b
     return xy_mult_share
 
-def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ: PRF) -> int:
+def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ:PRFprime) -> int:
     g = G.generator
     h_prime = h
     i = 0
@@ -98,9 +98,9 @@ def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ: PRF
         i += 1
     return i
 
-def convert_shares(b: int, share: ModularInt, instr_id: Tuple[int,int], δ: float, M: int, G: ModularGroup, φ: PRF):
+def convert_shares(b: int, share: ModularInt, instr_id: Tuple[int,int], δ: float, M: int, G: ModularGroup, φ:PRF):
     assert b in {0,1}
-    φ_prime = None #FIXME
+    φ_prime = Get_phi_prime(instr_id[0],φ)
     if b == 1: share = share.inv()
     i_b = distributed_d_log(G, share, δ, M, φ_prime)
     i_b = ModularInt(i_b, G.divisor)
