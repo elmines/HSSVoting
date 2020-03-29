@@ -24,5 +24,5 @@ RMSLoad = Tuple["load", ResultAddress, InputAddress]
 RMSOut  = Tuple["out" , OperandAddress]
 RMSOp = Union[RMSAdd,RMSMult,RMSLoad,RMSOut]
 
-PRF = Callable[[int, int],int]
-PRFprime = Callable[[int],int]
+PRF = Callable[[int, ModularInt],int]
+PRFprime = Callable[[ModularInt],int]

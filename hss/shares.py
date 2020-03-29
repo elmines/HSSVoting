@@ -97,12 +97,12 @@ def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ:PRFp
 
     φ_pref = prefix(φ, prefix_len)
     
-    rand_out = φ(int(h_prime))
+    rand_out = φ(h_prime)
     while rand_out != 0 and i < T:
-        print(f"i={i}: rand_out={bin(rand_out)}, T={T}")
+        print(f"i={i}: rand_out={bin(rand_out.value)}, T={T}")
         h_prime *= g
         i += 1
-        rand_out = φ(int(h_prime))
+        rand_out = φ(h_prime)
     return i
 
 def convert_shares(b: int, share: ModularInt, instr_id: Tuple[int,int], δ: float, M: int, G: ModularGroup, φ:PRF):

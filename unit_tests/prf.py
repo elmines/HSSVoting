@@ -7,7 +7,7 @@ class prf(unittest.TestCase):
         identifier = 0
         Φ = PRFGen()
 
-        g = 32
+        g = ModularInt(32,63)
         self.assertNotEqual(g,Φ(0,g))
         #cannot actually garauntee this since it's supposed to be random.
         #As identifier approaches infinity, probability of g,Φ(g) being equal
