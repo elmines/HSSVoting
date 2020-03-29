@@ -1,8 +1,6 @@
 import unittest
 from algebra import ModularInt
-from hss import additive_share, cryptosystem, dec_elgamal, gen, enc
-from hss import biterate, bit_length, bitwise_enc
-from hss import cryptosystem
+from hss import *
 import random
 
 class TestShares(unittest.TestCase):
@@ -77,3 +75,27 @@ class TestShares(unittest.TestCase):
         correct_prod_bits = list(map(lambda b: w*b, biterate(c)))
         cand_prod_bits = list(map(lambda b: dec_elgamal(G, c, b), prod_encs))
         self.assertEqual(correct_prod_bits, cand_prod_bits)
+
+    def test_convert_shares(self):
+        (pk, ekA, ekB, φ) = gen(16)
+        (G, e, one_enc, c_enc_bits) = pk
+        g = G.generator
+        instr_id = 13 # A little ways into a program
+        δ = 0.2
+
+
+        x = ModularInt(42, G.divisor)
+        (x0, x1) = additive_share(x)
+        (x0, x1) = (g**x0, g**x1)
+        x0 = x0.inv()
+
+        M = bit_length(x)
+        print(f"M={M}")
+        input("Press <Enter> to continue")
+
+
+        φ_prime = Get_phi_prime(instr_id, φ)
+
+        y0 = distributed_d_log(G, x0, δ, M, φ_prime)
+        y1 = distributed_d_log(G, x1, δ, M, φ_prime)
+        self.assertEqual(y1 - y0, x)

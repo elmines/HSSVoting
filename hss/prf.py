@@ -25,3 +25,9 @@ def Get_phi_prime(identifier:int,φ):
 		return φ(identifier,g)
 	return phi_prime
 
+def prefix(f, n: int):
+    def g(*args, **kwargs):
+        full = f(*args)
+        truncated = bin(full)[2:2+n]
+        return int(truncated, 2)
+    return g

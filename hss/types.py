@@ -1,4 +1,4 @@
-from typing import Tuple, Union, List,Any
+from typing import Tuple, Union, List, Callable
 from algebra import ModularGroup, ModularInt
 
 PK = Tuple[ModularGroup,ModularInt,ModularInt,List[ModularInt]]
@@ -24,5 +24,5 @@ RMSLoad = Tuple["load", ResultAddress, InputAddress]
 RMSOut  = Tuple["out" , OperandAddress]
 RMSOp = Union[RMSAdd,RMSMult,RMSLoad,RMSOut]
 
-PRF = Any #FIXME PRF is a function of two variables
-PRFprime = Any #FIXME PRFprimt is a function of 1 variable
+PRF = Callable[[int, int],int]
+PRFprime = Callable[[int],int]
