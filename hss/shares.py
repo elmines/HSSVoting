@@ -13,7 +13,7 @@ from .types import *
 
 def additive_share(x: ModularInt) -> Tuple[ModularInt,ModularInt]:
     n = x.divisor
-    x0 = ModularInt(secrets.randbelow(n), n)
+    x0 = ModularInt(secrets.randbelow(int(x)), n)
     x1 = x - x0
     return (x0, x1)
 
