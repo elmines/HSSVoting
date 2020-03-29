@@ -12,23 +12,10 @@ def elgamal_key(n) -> ModularInt:
 
 def cryptosystem(λ: int) -> Tuple[ModularGroup,MInt,MInt]:
     p = crypto_prime(λ)
-    q = crypto_prime(λ)
-
-    while q == p: q = crypto_prime(λ)
-    n = p*q
-
-    g = infer_generator(p, q)
-    g_attempts = 1
-    while not is_generator(g, p, q):
-        g = infer_generator(p,q)
-        g_attempts += 1
-    g = ModularInt(g, n)
-
-    c = elgamal_key(n)
+    g = ModularInt(2 + secrets.randbelow(p - 2), p)
+    c = elgamal_key(p)
     e = g ** c
-
-    G = ModularGroup(divisor=n, order=(p-1)*(q-1), generator=g)
-
+    G = ModularGroup(divisor=p, order=p-1, generator=g)
     return (G, e, c)
 
 def enc_elgamal(g: ModularInt, e: ModularInt, w: int) -> Tuple[MInt,MInt]:
