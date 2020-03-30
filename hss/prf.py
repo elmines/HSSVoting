@@ -1,4 +1,4 @@
-import random
+from random import Random
 from .types import *
 from .elgamal import cryptosystem, enc_elgamal
 #Pseudo-random function (PRF) from Goldreich-Goldwasser-Micali 1984 (GGM)
@@ -9,11 +9,9 @@ def PRFGen():
 		λ = len(id_bits)
 		g_length=len(bin(g.divisor)[2:])
 		g_val = g.value
-		#g_length=g.divisor
-	#	print("id_bits=",id_bits,"λ=",λ,"g_length=",g_length)
 		for i in range(λ):
-			random.seed(g.value)
-			rand_bits = random.getrandbits(2*g_length)
+			my_random = Random(g.value)
+			rand_bits = my_random.getrandbits(2*g_length)
 			G = bin(rand_bits)[2:].zfill(2*g_length)
 			if id_bits[λ-1-i] == "0":
 				g_val= int(G[0 : g_length],2)
