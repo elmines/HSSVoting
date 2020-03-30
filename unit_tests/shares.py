@@ -1,8 +1,10 @@
 import math
 import unittest
-from algebra import ModularInt
+from algebra import ModularInt, discrete_log
 from hss import *
 import random
+
+import pdb
 
 class TestShares(unittest.TestCase):
     def test_biterate(self):
@@ -76,6 +78,28 @@ class TestShares(unittest.TestCase):
         correct_prod_bits = list(map(lambda b: w*b, biterate(c)))
         cand_prod_bits = list(map(lambda b: dec_elgamal(G, c, b), prod_encs))
         self.assertEqual(correct_prod_bits, cand_prod_bits)
+
+    def test_mult_shares(self):
+        (pk, ekA, ekB, _) = gen(16)
+        (G, e, _, _) = pk
+        g = G.generator
+        c = ekA[2] + ekB[2]
+
+        x = random.randrange(2, G.divisor)
+        x = ModularInt(x, G.divisor)
+        x_enc = enc_elgamal(g, e, x)
+        self.assertEqual(x, dec_elgamal(G, c, x_enc))
+
+        y = random.randrange(2, G.divisor)
+        (cyA, cyB) = raw_additive_share(y*c.value)
+        (yA, yB) = raw_additive_share(y)
+
+        xyA = mult_shares(x_enc, yA, cyA)
+        xyB = mult_shares(x_enc, yB, cyB)
+
+        self.assertEqual(xyA*xyB, g**(x.value*y))
+
+
 
     def test_distributed_d_log(self, iterations=100):
         (pk, ekA, ekB, φ) = gen(16)

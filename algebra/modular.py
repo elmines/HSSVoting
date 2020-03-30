@@ -4,6 +4,13 @@ from collections import namedtuple
 
 ModularGroup = namedtuple("ModularGroup", ["divisor", "order", "generator"])
 
+def raw_add(x, y):
+    return int(x) + int(y)
+def raw_mult(x, y):
+    return int(x)*int(y)
+def raw_sub(x,y):
+    return int(x)-int(y)
+
 class ModularInt(object):
 
     def __init__(self, value, divisor):
@@ -116,4 +123,4 @@ MInt = ModularInt
 Type alias for purposes of brevity in documenation
 """
 
-__all__ = ["ModularGroup", "ModularInt", "MInt", "modular_exp"]
+__all__ = ["ModularGroup", "ModularInt", "MInt", "modular_exp", "raw_add", "raw_sub", "raw_mult"]

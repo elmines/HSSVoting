@@ -17,6 +17,12 @@ def additive_share(x: ModularInt) -> Tuple[ModularInt,ModularInt]:
     x1 = x - x0
     return (x0, x1)
 
+def raw_additive_share(x: int) -> Tuple[ModularInt, ModularInt]:
+    assert isinstance(x, int)
+    x0 = secrets.randbelow(x)
+    x1 = x - x0
+    return (x0, x1)
+
 def bit_length(x: ModularInt) -> int:
     n = _binary_log(x.divisor)
     if n - int(n) < 0.00001: return int(n)
@@ -80,10 +86,12 @@ def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
 
 def mult_shares(x_enc: ModularInt, y_share: ModularInt, cy_share: ModularInt) -> ModularInt:
     (h1, h2) = x_enc
+    divisor = h1.divisor
 
-    a = h_2 ** y_share
-
-    b = (h_1 ** cy_share).inv()
+    a = h2 ** y_share
+    tmp = h1**cy_share
+    b = (h1 ** cy_share).inv()
+    assert b * tmp == 1, f"b={b}, tmp={tmp}"
     
     xy_mult_share = a * b
     return xy_mult_share
