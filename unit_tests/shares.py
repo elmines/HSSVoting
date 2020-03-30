@@ -1,3 +1,4 @@
+import math
 import unittest
 from algebra import ModularInt
 from hss import *
@@ -29,7 +30,7 @@ class TestShares(unittest.TestCase):
     def test_additive_share(self, iterations=5):
         divisor = 37
         for _ in range(iterations):
-            x = ModularInt( random.randrange(divisor), divisor )
+            x = ModularInt(1 + random.randrange(divisor - 1), divisor )
             shares = additive_share(x)
             self.assertEqual( sum(shares), x)
 
@@ -76,26 +77,29 @@ class TestShares(unittest.TestCase):
         cand_prod_bits = list(map(lambda b: dec_elgamal(G, c, b), prod_encs))
         self.assertEqual(correct_prod_bits, cand_prod_bits)
 
-    def test_convert_shares(self):
+    def test_distributed_d_log(self, iterations=10):
         (pk, ekA, ekB, φ) = gen(16)
         (G, e, one_enc, c_enc_bits) = pk
         g = G.generator
-        instr_id = 13 # A little ways into a program
-        δ = 0.2
 
+        M = 5
+        δ = math.exp(-5)
 
-        x = ModularInt(42, G.divisor)
-        (x0, x1) = additive_share(x)
-        (x0, x1) = (g**x0, g**x1)
-        x0 = x0.inv()
-
-        M = bit_length(x)
-        print(f"M={M}")
-        input("Press <Enter> to continue")
-
-
-        φ_prime = Get_phi_prime(instr_id, φ)
-
-        y0 = distributed_d_log(G, x0, δ, M, φ_prime)
-        y1 = distributed_d_log(G, x1, δ, M, φ_prime)
-        self.assertEqual(y1 - y0, x)
+        iterations=1000
+        correct = 0
+        for i in range(iterations):
+            x = ModularInt(random.randrange(1, G.divisor), G.divisor)
+            instr_id = random.randrange(10, G.divisor) # A little ways into a program
+            φ_prime = Get_phi_prime(instr_id, φ)
+            (x0, x1) = additive_share(x)
+            print(f"x={x}, x0={x0}, x1={x1}, ",end="")
+            self.assertEqual(g**x0 * g**x1, g**x)
+            (x0, x1) = (g**x0, g**x1)
+            self.assertEqual(x1 * x0, g**x)
+            x0 = x0.inv()
+            y0 = distributed_d_log(G, x0, δ, M, φ_prime)
+            y1 = distributed_d_log(G, x1, δ, M, φ_prime)
+            if y0 - y1 == x: correct += 1
+            print(f"y0={y0}, y1={y1}, correct={correct}")
+        print(f"correct={correct}")
+        self.assertTrue(correct > 0)

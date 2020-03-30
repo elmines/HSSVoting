@@ -16,7 +16,7 @@ class prf(unittest.TestCase):
         #identifier=0, g=32 should give 4
 
     def test_prefix(self):
-        x = 0b10101111
+        x = ModularInt(0b10101111, 2**8)
         ident = lambda y: y
         first_4 = prefix(ident, 4)
         self.assertEqual(first_4(x), 0b1010)
