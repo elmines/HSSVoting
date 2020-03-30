@@ -29,12 +29,6 @@ def brute_prime_test(n) -> bool:
         i += 2
     return True
 
-def is_generator(g: int, p: int, q: int) -> bool:
-    return (g%p) and (g%q)
-
-def infer_generator(p: int, q: int) -> int:
-    return (p+1) + secrets.randbelow( (p*q) - (p+1) ) # Sample k in (p,p*q)
-
 def crypto_prime(λ: int) -> int:
     upper_bound = 2**λ
     return random_prime(2, upper_bound)
