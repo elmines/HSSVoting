@@ -54,7 +54,8 @@ class ModularInt(object):
         return self._binary_rop(multiplier, operator.mul)
 
     def __pow__(self, exponent) -> "ModularInt":
-        if type(exponent) == ModularInt: exponent = exponent.value
+        if type(exponent) == ModularInt:
+            raise Exception("Don't use a ModularInt as an exponent. If you indeed know what you're doing, cast it to an int()")
         result = modular_exp(self.value, exponent, self.divisor)
         return ModularInt(result, self.divisor)
 

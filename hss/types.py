@@ -10,7 +10,7 @@ n is the divisor for the three modular integers.
 c_encs are the ElGamal encryptions of the individual bits of the secret key c.
 """
 
-EK = Tuple[PK, ModularInt, ModularInt]
+EK = Tuple[PK, int, int]
 """
 A tuple (public key, <1>, <c>) where <x> is an additive share of x
 """

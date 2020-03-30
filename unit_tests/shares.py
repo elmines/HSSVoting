@@ -32,7 +32,7 @@ class TestShares(unittest.TestCase):
     def test_additive_share(self, iterations=5):
         divisor = 37
         for _ in range(iterations):
-            x = ModularInt(1 + random.randrange(divisor - 1), divisor )
+            x = 1 + random.randrange(divisor - 1)
             shares = additive_share(x)
             self.assertEqual( sum(shares), x)
 
@@ -43,7 +43,7 @@ class TestShares(unittest.TestCase):
         self._compare_bits(G, e, c, c_enc_bits)
 
     def _compare_bits(self, G, e, c, c_enc_bits):
-        correct_c_bits = list(biterate(c))
+        correct_c_bits = list(biterate(ModularInt(c, G.divisor)))
         self.assertEqual(len(correct_c_bits), len(c_enc_bits))
         cand_c_bits = map(lambda b: dec_elgamal(G, c, b), c_enc_bits)
         for (correct_bit, cand_bit) in zip(correct_c_bits, cand_c_bits):
@@ -75,7 +75,7 @@ class TestShares(unittest.TestCase):
 
         self.assertEqual(w, dec_elgamal(G, c, w_enc))
 
-        correct_prod_bits = list(map(lambda b: w*b, biterate(c)))
+        correct_prod_bits = list(map(lambda b: w*b, biterate(ModularInt(c,G.divisor))))
         cand_prod_bits = list(map(lambda b: dec_elgamal(G, c, b), prod_encs))
         self.assertEqual(correct_prod_bits, cand_prod_bits)
 
@@ -86,18 +86,17 @@ class TestShares(unittest.TestCase):
         c = ekA[2] + ekB[2]
 
         x = random.randrange(2, G.divisor)
-        x = ModularInt(x, G.divisor)
         x_enc = enc_elgamal(g, e, x)
         self.assertEqual(x, dec_elgamal(G, c, x_enc))
 
         y = random.randrange(2, G.divisor)
-        (cyA, cyB) = raw_additive_share(y*c.value)
-        (yA, yB) = raw_additive_share(y)
+        (cyA, cyB) = additive_share(y*c)
+        (yA, yB) = additive_share(y)
 
         xyA = mult_shares(x_enc, yA, cyA)
         xyB = mult_shares(x_enc, yB, cyB)
 
-        self.assertEqual(xyA*xyB, g**(x.value*y))
+        self.assertEqual(xyA*xyB, g**(x*y))
 
 
 
@@ -110,7 +109,7 @@ class TestShares(unittest.TestCase):
 
         correct = 0
         for i in range(iterations):
-            x = ModularInt(random.randrange(1, G.divisor), G.divisor)
+            x = random.randrange(1, G.divisor)
             instr_id = random.randrange(10, G.divisor) # A little ways into a program
             φ_prime = Get_phi_prime(instr_id, φ)
             (x0, x1) = additive_share(x)
@@ -130,7 +129,7 @@ class TestShares(unittest.TestCase):
 
         correct = 0
         for i in range(iterations):
-            x = ModularInt(random.randrange(1, G.divisor), G.divisor)
+            x = random.randrange(1, G.divisor)
             instr_id = random.randrange(10, G.divisor) # A little ways into a program
             (x0, x1) = additive_share(x)
             (x0, x1) = (g**x0, g**x1)

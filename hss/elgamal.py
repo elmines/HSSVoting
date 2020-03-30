@@ -2,12 +2,11 @@ import secrets
 from typing import Tuple
 from algebra import ModularGroup, ModularInt, MInt, crypto_prime, discrete_log, hardcoded_group
 
-def elgamal_key(n) -> ModularInt:
+def elgamal_key(n) -> int:
     """
     :param n: The group divisor
     """
     x = 1 + secrets.randbelow(n - 1)
-    x = ModularInt(x, n)
     return x
 
 #FIXME: Set hardcoded to be False by default once we've a real algorithm
@@ -31,7 +30,8 @@ def enc_elgamal(g: ModularInt, e: ModularInt, w: int) -> Tuple[MInt,MInt]:
     c2 = g**w * e**y
     return (c1, c2)
 
-def dec_elgamal(G: ModularGroup, c: ModularInt, ct) -> ModularInt:
+def dec_elgamal(G: ModularGroup, c: int, ct) -> ModularInt:
+    assert isinstance(c,int)
     order = G.order
     g = G.generator
     (c1, c2) = ct

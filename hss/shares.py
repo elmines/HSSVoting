@@ -11,13 +11,7 @@ from .elgamal import cryptosystem, enc_elgamal
 from .types import *
 
 
-def additive_share(x: ModularInt) -> Tuple[ModularInt,ModularInt]:
-    n = x.divisor
-    x0 = ModularInt(secrets.randbelow(int(x)), n)
-    x1 = x - x0
-    return (x0, x1)
-
-def raw_additive_share(x: int) -> Tuple[ModularInt, ModularInt]:
+def additive_share(x: int) -> Tuple[int,int]:
     assert isinstance(x, int)
     x0 = secrets.randbelow(x)
     x1 = x - x0
@@ -38,8 +32,8 @@ def biterate(x: ModularInt) -> Generator[int,None,None]:
         yield 1 & (x >> i)
 
 
-def bitwise_enc(g, e, c) -> List[ModularInt]:
-    return [enc_elgamal(g, e, c_t) for c_t in biterate(c)]
+def bitwise_enc(g: ModularInt, e: ModularInt, c: int) -> List[ModularInt]:
+    return [enc_elgamal(g, e, c_t) for c_t in biterate(ModularInt(c, g.divisor))]
 
 def gen(λ: int) -> Tuple[PK,EK,EK,PRF]:
     """
@@ -54,8 +48,8 @@ def gen(λ: int) -> Tuple[PK,EK,EK,PRF]:
     one_enc = enc_elgamal(g, e, 1)
     c_encs = bitwise_enc(g, e, c)
 
-    one_share = additive_share( ModularInt(1,n) )
-    c_share = additive_share( ModularInt(c,n) )
+    one_share = additive_share(1)
+    c_share = additive_share(c)
 
     pk = (G, e, one_enc, c_encs)
     ek_0 = (pk, one_share[0], c_share[0])
