@@ -81,7 +81,6 @@ class TestShares(unittest.TestCase):
         (pk, ekA, ekB, φ) = gen(16)
         (G, e, one_enc, c_enc_bits) = pk
         g = G.generator
-
         M = 5
         δ = math.exp(-7)
 
@@ -96,4 +95,22 @@ class TestShares(unittest.TestCase):
             y0 = distributed_d_log(G, x0, δ, M, φ_prime)
             y1 = distributed_d_log(G, x1, δ, M, φ_prime)
             if y0 - y1 == x: correct += 1
+        self.assertTrue(correct > 0) #FIXME: Use a better lower probability bound than this
+
+    def test_convert_shares(self, iterations=100):
+        (pk, ekA, ekB, φ) = gen(16)
+        (G, e, one_enc, c_enc_bits) = pk
+        g = G.generator
+        M = 5
+        δ = math.exp(-7)
+
+        correct = 0
+        for i in range(iterations):
+            x = ModularInt(random.randrange(1, G.divisor), G.divisor)
+            instr_id = random.randrange(10, G.divisor) # A little ways into a program
+            (x0, x1) = additive_share(x)
+            (x0, x1) = (g**x0, g**x1)
+            y0 = convert_shares(0, x0, instr_id, δ, M, G, φ)
+            y1 = convert_shares(1, x1, instr_id, δ, M, G, φ)
+            if y0 + y1 == x: correct += 1
         self.assertTrue(correct > 0) #FIXME: Use a better lower probability bound than this
