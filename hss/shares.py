@@ -107,10 +107,15 @@ def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ:PRFp
         rand_out = φ_pref(h_prime)
     return i
 
-def convert_shares(b: int, share: ModularInt, instr_id: int, δ: float, M: int, G: ModularGroup, φ:PRF):
+def convert_shares(b: int, share: ModularInt, instr_id: int, δ: float, M: int, G: ModularGroup, φ:PRF) -> int:
     φ_prime = Get_phi_prime(instr_id,φ)
-    if b == 1: share = share.inv()
+    if b == 1:
+        assert share * share.inv() == 1
+        share = share.inv()
     i_b = distributed_d_log(G, share, δ, M, φ_prime)
-    i_b = ModularInt(i_b, G.divisor)
-    additive_share = (G.divisor - i_b) if b == 0 else i_b
+
+    assert 0 <= i_b
+    assert i_b <= G.divisor
+
+    additive_share = (G.divisor - i_b) if b == 0 else i_b - 1
     return additive_share

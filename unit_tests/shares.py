@@ -135,5 +135,6 @@ class TestShares(unittest.TestCase):
             (x0, x1) = (g**x0, g**x1)
             y0 = convert_shares(0, x0, instr_id, δ, M, G, φ)
             y1 = convert_shares(1, x1, instr_id, δ, M, G, φ)
+            #pdb.set_trace()
             if y0 + y1 == x: correct += 1
         self.assertTrue(correct > 0) #FIXME: Use a better lower probability bound than this

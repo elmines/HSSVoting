@@ -9,6 +9,8 @@ from .prime import *
 from .elgamal import *
 from .modular import *
 from .prf import *
+from .rms import *
+
 class Metaprogramming(unittest.TestCase):
     def test_make_sum(self):
         n = 5
