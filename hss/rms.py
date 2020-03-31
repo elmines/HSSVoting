@@ -1,33 +1,41 @@
+from collections import namedtuple
+# Local
 from .types import *
-import operator
+from .shares import mult_shares, convert_shares
+
+StaticContext  = namedtuple("StaticContext", ["G", "M", "φ", "δ_prime"])
+RuntimeContext = namedtuple("RuntimeContext", ["b", "instr_no"])
+
 
 def concat_bits(x: int, y: int):
     return (x << len(bin(y)[2:])) + y
 
-def rms_mult(w: Ciphertext, y: MemoryVal, b, φ, δ_prime: float):
+def rms_mult(w: Ciphertext, y: MemoryVal, statCon, runCon):
+    (G, M, φ, δ_prime) = statCon
+    (b, instr_no) = runCon
+
     (w_enc, bitwise_encs) = w
     (y_share, cy_share) = y
     y_share = int(y_share)
     cy_share = int(cy_share)
     
-    wy_mult_share = mult_shares(w, y_share, cy_share)
-    wy_add_share  = convert_shares(self.b, wy_mult_share, concat_bits(self.instr_no, 0), δ_prime, M, self.φ)
+    wy_mult_share = mult_shares(w_enc, y_share, cy_share)
+    wy_add_share  = convert_shares(b, wy_mult_share, concat_bits(instr_no, 0), δ_prime, M, G, φ)
     
     cwy_bitwise_shares = []
     for (t, bitwise_enc) in enumerate(bitwise_encs):
         bitwise_mult_share = mult_shares(bitwise_enc, y_share, cy_share)
-        cwy_bitwise_shares.append( convert_shares(self.b, bitwise_mult_share, concat_bits(self.instr_no,t), δ_prime, M, self.φ) )
+        cwy_bitwise_shares.append( convert_shares(b, bitwise_mult_share, concat_bits(instr_no,t), δ_prime, M, G, φ) )
     cwy_add_share = sum( map(lambda t: 2**t * cwy_bitwise_shares[t], range(len(cwy_bitwise_shares))) )
     return (wy_add_share, cwy_add_share)
 
-
 class Evaluator(object):
-    def __init__(G: ModularGroup, program: List[RMSOp], M: int, δ: float):
+    def __init__(G: ModularGroup, program: List[RMSOp], φ, M: int, δ: float):
         self.G = G
         self.program = program
         self.M = M
         self.δ_prime = δ / ((l+1) * M * S)
-        self.φ = PRFGen()
+        self.φ = φ
 
     @property
     def S(self):
