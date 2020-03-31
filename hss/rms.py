@@ -61,20 +61,20 @@ class Evaluator(object):
                 raise Exception("Negative indices are reserved for the library programmer: {(op,*operands)}")
 
             if op == "load":
-                (j, i) = operands
+                [j, i] = operands
                 memory[j] = self.rms_mult(ct[i], memory[ONE], b, instr_no)
             elif op == "mult":
-                (k, i, j) = operands
+                [k, i, j] = operands
                 memory[k] = rms_mult(ct[i], memory[j], b, instr_no)
             elif op == "add":
-                (k, i, j) = operands
+                [k, i, j] = operands
                 (y_i, cy_i) = memory[i]
                 (y_j, cy_j) = memory[j]
                 memory[k] = (y_i+y_j,cy_i+cy_j)
             elif op == "out":
+                [i] = operands
                 (y_share, cy_share) = memory[i]
                 z_share = y_share
-                #FIXME: Add this in later once we know everything else is working
                 offset = (self.φ)(instr_no,self.G.generator) 
                 if b == 1: z_share = z_share - offset
                 else:      z_share = z_share + offset

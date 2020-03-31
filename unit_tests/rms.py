@@ -51,7 +51,7 @@ class TestProgram(unittest.TestCase):
     def M():
         return 5
 
-    def test_identity_program(self, iterations=10):
+    def not_test_identity_program(self, iterations=10):
         correct = 0
         for i in range(iterations):
             inputs = [random.randrange(TestProgram.M())]
@@ -60,6 +60,32 @@ class TestProgram(unittest.TestCase):
             if inputs == results:
                 correct += 1
         self.assertTrue(correct > 0) #FIXME: Choose a better probability bound
+
+    def test_binary_sum(self, iterations=10):
+        w = [2, 3]
+        self.assertTrue(sum(w) <= TestProgram.M())
+        prog = make_sum_program(2)
+        correct = 0
+        for i in range(iterations):
+            results = self._test_specific_program(prog, w)
+            results = results[0]
+            if sum(w) == results:
+                correct += 1
+        self.assertTrue(correct > 0)
+
+    def test_n_ary_sum(self, n=5, iterations=10):
+        correct = 0
+        for i in range(iterations):
+            votes = [0 for _ in range(n)]
+            vote_total = random.randrange(TestProgram.M() + 1)
+            for _ in range(vote_total):
+                votes[random.randrange(len(votes))] += 1
+            self.assertTrue(sum(votes) <= TestProgram.M())
+            prog = make_sum_program(n)
+            results = self._test_specific_program(prog, votes)
+            results = results[0]
+            if sum(votes) == results: correct += 1
+        self.assertTrue(correct > 0)
 
     def _test_specific_program(self, prog, inputs):
         (pk, ek0, ek1, φ) = gen(16)
