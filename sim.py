@@ -3,6 +3,8 @@ import math
 import random
 import argparse
 import sys
+import operator
+from functools import reduce
 
 # Local
 from hss import *
@@ -18,6 +20,31 @@ def sim_vote_count(n=None, δ=None, iterations=None):
     checker = lambda w, results: sum(w) == results[0]
     simulator = Simulator(scheme, program, M, δ, checker)
     input_gen = lambda: [random.getrandbits(1) for _ in range(n)]
+    simulator.simulate(input_gen, iterations, verbose=True)
+
+def sim_unan(n=None, δ=None, iterations=None):
+    if not n: n = 5
+    if not δ: δ = math.exp(-5)
+    if not iterations: iterations = 100
+
+    scheme = gen(7)
+    program = make_conjunction_program(n)
+    M = n
+    checker = lambda w, results: reduce(operator.mul, w) == results[0]
+    simulator = Simulator(scheme, program, M, δ, checker)
+
+    i = 0
+    def input_gen():
+        nonlocal i
+        if i % 2:
+            votes = [1 for _ in range(n)]
+        else:
+            # 50% of the time there is dissent
+            votes = [random.getrandbits(1) for _ in range(n)]
+            if sum(votes) == len(votes): votes[random.randrange(len(votes))] = 0
+        i += 1
+        return votes
+
     simulator.simulate(input_gen, iterations, verbose=True)
 
 
