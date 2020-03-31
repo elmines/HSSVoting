@@ -65,7 +65,7 @@ class Evaluator(object):
                 memory[j] = self.rms_mult(ct[i], memory[ONE], b, instr_no)
             elif op == "mult":
                 [k, i, j] = operands
-                memory[k] = rms_mult(ct[i], memory[j], b, instr_no)
+                memory[k] = self.rms_mult(ct[i], memory[j], b, instr_no)
             elif op == "add":
                 [k, i, j] = operands
                 (y_i, cy_i) = memory[i]

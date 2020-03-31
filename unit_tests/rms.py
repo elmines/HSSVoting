@@ -87,11 +87,36 @@ class TestProgram(unittest.TestCase):
             if sum(votes) == results: correct += 1
         self.assertTrue(correct > 0)
 
-    def _test_specific_program(self, prog, inputs):
+    def test_conj_unanimous(self, iterations=20):
+        n = 5
+        unanimous = [1 for _ in range(n)]
+        correct = 1
+        prog = make_conjunction_program(n)
+        for i in range(iterations):
+            results = self._test_specific_program(prog, unanimous, M=1, δ=math.exp(-7))
+            results = results[0]
+            if 1 == results: correct += 1
+        self.assertTrue(correct > 0)
+
+    def test_conj_nonunanimous(self, iterations=50):
+        n = 5
+        prog = make_conjunction_program(n)
+        correct = 0
+        for i in range(iterations):
+            votes = random.getrandbits(n)
+            votes = [ int(b) for b in bin(votes)[2:].zfill(n) ]
+            self.assertEqual(len(votes), n)
+            votes[random.randrange(len(votes))] = 0
+            results = self._test_specific_program(prog, votes, M=1, δ=math.exp(-7))
+            results = results[0]
+            if 0 == results: correct += 1
+        self.assertTrue(correct > 0)
+
+    def _test_specific_program(self, prog, inputs, M=None, δ=math.exp(-5)):
+        if not M: M = TestProgram.M()
         (pk, ek0, ek1, φ) = gen(16)
         (G, *rest) = pk
-        δ = math.exp(-5)
-        servers = Evaluator(G, prog, φ, TestProgram.M(), δ)
+        servers = Evaluator(G, prog, φ, M, δ)
         (one0, one1) = (ek0[1], ek1[1])
         (c0, c1) = (ek0[2], ek1[2])
         ONE_MEM_0 = (one0, c0)
