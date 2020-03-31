@@ -33,7 +33,7 @@ class ModularTest(unittest.TestCase):
 
         for _ in range(iterations):
             div = random_prime()
-            x = ModularInt( random.randrange(div), div)
+            x = ModularInt( random.randrange(1, div), div)
             x_inv = x.inv()
             self.assertIsNotNone(x_inv)
             self.assertEqual(x*x_inv, 1)
