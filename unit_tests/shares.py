@@ -32,7 +32,7 @@ class TestShares(unittest.TestCase):
     def test_additive_share(self, iterations=5):
         divisor = 37
         for _ in range(iterations):
-            x = 1 + random.randrange(divisor - 1)
+            x = 1 + random.randrange(divisor - 2)
             shares = additive_share(x)
             self.assertEqual( sum(shares), x)
 
@@ -85,7 +85,7 @@ class TestShares(unittest.TestCase):
         g = G.generator
         c = ekA[2] + ekB[2]
 
-        x = random.randrange(2, G.divisor)
+        x = random.randrange(2, G.divisor - 1)
         y = 1 + random.randrange(G.divisor // x) # mult_shares only works for 0 <= xy < q
 
         # x as left operand
@@ -116,7 +116,7 @@ class TestShares(unittest.TestCase):
 
         correct = 0
         for i in range(iterations):
-            x = random.randrange(1, G.divisor)
+            x = random.randrange(1, G.divisor - 1)
             instr_id = random.randrange(10, G.divisor) # A little ways into a program
             φ_prime = Get_phi_prime(instr_id, φ)
             (x0, x1) = additive_share(x)
@@ -136,7 +136,7 @@ class TestShares(unittest.TestCase):
 
         correct = 0
         for i in range(iterations):
-            x = random.randrange(1, G.divisor)
+            x = random.randrange(1, G.divisor - 1)
             instr_id = random.randrange(10, G.divisor) # A little ways into a program
             (x0, x1) = additive_share(x)
             (x0, x1) = (g**x0, g**x1)
