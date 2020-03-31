@@ -24,5 +24,14 @@ RMSLoad = Tuple["load", ResultAddress, InputAddress]
 RMSOut  = Tuple["out" , OperandAddress]
 RMSOp = Union[RMSAdd,RMSMult,RMSLoad,RMSOut]
 
+Ciphertext = Tuple[ModularInt,List[ModularInt]]
+"""
+([[w]]_c, {[[c^(t)]]_c} for t=0,1,..l ) where w is the input and c is the ElGamal secret key
+"""
+MemoryVal = Tuple[ModularInt,ModularInt]
+"""
+(<y>, <cy>) where c is the ElGamal secret key
+"""
+
 PRF = Callable[[int, ModularInt],int]
 PRFprime = Callable[[ModularInt],int]

@@ -13,6 +13,7 @@ from .types import *
 
 def additive_share(x: int) -> Tuple[int,int]:
     assert isinstance(x, int)
+    if x == 0: return (0, 0)
     x0 = secrets.randbelow(x)
     x1 = x - x0
     return (x0, x1)
@@ -107,15 +108,10 @@ def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ:PRFp
         rand_out = φ_pref(h_prime)
     return i
 
-def convert_shares(b: int, share: ModularInt, instr_id: int, δ: float, M: int, G: ModularGroup, φ:PRF) -> int:
+def convert_shares(b: int, share: ModularInt, instr_id: int, δ: float, M: int, G: ModularGroup, φ:PRF) -> ModularInt:
     φ_prime = Get_phi_prime(instr_id,φ)
-    if b == 1:
-        assert share * share.inv() == 1
-        share = share.inv()
+    if b == 1: share = share.inv()
     i_b = distributed_d_log(G, share, δ, M, φ_prime)
-
-    assert 0 <= i_b
-    assert i_b <= G.divisor
-
-    additive_share = (G.divisor - i_b) if b == 0 else i_b - 1
+    additive_share = (G.divisor - i_b) if b == 0 else i_b
+    additive_share = ModularInt(additive_share, G.divisor)
     return additive_share
