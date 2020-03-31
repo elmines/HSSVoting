@@ -36,7 +36,7 @@ def biterate(x: ModularInt) -> Generator[int,None,None]:
 def bitwise_enc(g: ModularInt, e: ModularInt, c: int) -> List[ModularInt]:
     return [enc_elgamal(g, e, c_t) for c_t in biterate(ModularInt(c, g.divisor))]
 
-def gen(λ: int) -> Tuple[PK,EK,EK,PRF]:
+def gen(λ: int) -> SharingScheme:
     """
     :param λ: Number of bits of security
     :returns: Tuple of (public key, eval key 1, eval key 2)

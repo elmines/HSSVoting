@@ -1,6 +1,9 @@
 from typing import Tuple, Union, List, Callable
 from algebra import ModularGroup, ModularInt
 
+PRF = Callable[[int, ModularInt],int]
+PRFprime = Callable[[ModularInt],int]
+
 PK = Tuple[ModularGroup,ModularInt,ModularInt,List[ModularInt]]
 """
 A tuple (group, encryption key, 1_enc, c_encs)
@@ -14,6 +17,8 @@ EK = Tuple[PK, int, int]
 """
 A tuple (public key, <1>, <c>) where <x> is an additive share of x
 """
+
+SharingScheme = Tuple[PK, EK, EK, PRF]
 
 ResultAddress = int
 OperandAddress = int
@@ -33,5 +38,8 @@ MemoryVal = Tuple[ModularInt,ModularInt]
 (<y>, <cy>) where c is the ElGamal secret key
 """
 
-PRF = Callable[[int, ModularInt],int]
-PRFprime = Callable[[ModularInt],int]
+# Types for Simulator
+Inputs = List[int]
+InputGenerator = Callable[[], Inputs]
+Results = List[ModularInt]
+Checker = Callable[[Inputs,Results],bool]

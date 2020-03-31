@@ -8,3 +8,5 @@ from .shares  import *
 
 from .rms import *
 from .prf import *
+
+from .simulator import *
