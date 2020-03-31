@@ -14,7 +14,6 @@ class TestRMS(unittest.TestCase):
 
     def test_rms_load(self, iterations=10):
         correct = 0
-        print()
         for i in range(iterations):
             correct += self._rms_load_trial()
         self.assertTrue(correct > 0) #FIXME: Use a better probability bound than this
@@ -45,4 +44,35 @@ class TestRMS(unittest.TestCase):
         cw_cand = out0[1] + out1[1]
 
         return (w_cand == w) and (cw_cand == c*w)
+
+class TestProgram(unittest.TestCase):
+
+    @staticmethod
+    def M():
+        return 5
+
+    def test_identity_program(self, iterations=10):
+        correct = 0
+        for i in range(iterations):
+            inputs = [random.randrange(TestProgram.M())]
+            expected = inputs
+            results = self._test_specific_program(identity_program(), inputs)
+            if inputs == results:
+                correct += 1
+        self.assertTrue(correct > 0) #FIXME: Choose a better probability bound
+
+    def _test_specific_program(self, prog, inputs):
+        (pk, ek0, ek1, φ) = gen(16)
+        (G, *rest) = pk
+        δ = math.exp(-5)
+        servers = Evaluator(G, prog, φ, TestProgram.M(), δ)
+        (one0, one1) = (ek0[1], ek1[1])
+        (c0, c1) = (ek0[2], ek1[2])
+        ONE_MEM_0 = (one0, c0)
+        ONE_MEM_1 = (one1, c1)
+        ct = [enc(pk, w) for w in inputs]
+        out0 = servers.public_key_eval(0, ek0, ct)
+        out1 = servers.public_key_eval(1, ek1, ct)
+        results = [o0 + o1 for (o0, o1) in zip(out0, out1)]
+        return results
 

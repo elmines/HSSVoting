@@ -25,3 +25,6 @@ def make_sum_program(n: int) -> List[RMSOp]:
 
     return ops
 
+
+def identity_program() -> List[RMSOp]:
+    return [("load", 0, 0), ("out", 0)]

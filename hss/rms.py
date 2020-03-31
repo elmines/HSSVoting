@@ -56,16 +56,16 @@ class Evaluator(object):
     
         instr_no = 1
 
-        for (op, *operands) in program:
+        for (op, *operands) in self.program:
             if min(operands) < 0:
                 raise Exception("Negative indices are reserved for the library programmer: {(op,*operands)}")
 
             if op == "load":
                 (j, i) = operands
-                memory[j] = self.rms_mult(ct[i], memory[ONE])
+                memory[j] = self.rms_mult(ct[i], memory[ONE], b, instr_no)
             elif op == "mult":
                 (k, i, j) = operands
-                memory[k] = rms_mult(ct[i], memory[j])
+                memory[k] = rms_mult(ct[i], memory[j], b, instr_no)
             elif op == "add":
                 (k, i, j) = operands
                 (y_i, cy_i) = memory[i]
@@ -75,9 +75,9 @@ class Evaluator(object):
                 (y_share, cy_share) = memory[i]
                 z_share = y_share
                 #FIXME: Add this in later once we know everything else is working
-                #offset = (self.φ)(self.instr_no,G.generator) 
-                #if b == 1: z_share = z_share - offset
-                #else:      z_share = z_share + offset
+                offset = (self.φ)(instr_no,self.G.generator) 
+                if b == 1: z_share = z_share - offset
+                else:      z_share = z_share + offset
                 outputs.append(z_share)
             else:
                 raise Exception(f"Invalid RMS instruction {op}")
