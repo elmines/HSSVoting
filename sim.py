@@ -11,12 +11,12 @@ from hss import *
 
 def sim_vote_count(n=None, δ=None, iterations=None):
     if not n: n = 5
-    if not δ: δ = math.exp(-5)
+    if not δ: δ = math.exp(-4)
     if not iterations: iterations = 100
 
     scheme = gen(7)
     program = make_sum_program(n)
-    M = n
+    M = n.bit_length()
     checker = lambda w, results: sum(w) == results[0]
     simulator = Simulator(scheme, program, M, δ, checker)
     input_gen = lambda: [random.getrandbits(1) for _ in range(n)]
@@ -24,12 +24,12 @@ def sim_vote_count(n=None, δ=None, iterations=None):
 
 def sim_unan(n=None, δ=None, iterations=None):
     if not n: n = 5
-    if not δ: δ = math.exp(-5)
+    if not δ: δ = math.exp(-4)
     if not iterations: iterations = 100
 
     scheme = gen(7)
     program = make_conjunction_program(n)
-    M = n
+    M = 1
     checker = lambda w, results: reduce(operator.mul, w) == results[0]
     simulator = Simulator(scheme, program, M, δ, checker)
 
