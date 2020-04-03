@@ -1,6 +1,6 @@
 import secrets
 from typing import Tuple
-from algebra import ModularGroup, ModularInt, MInt, crypto_prime, discrete_log, hardcoded_group
+from algebra import ModularGroup, ModularInt, MInt, crypto_prime, discrete_log, hardcoded_group,Gen_Groups
 
 def elgamal_key(n) -> int:
     """
@@ -10,15 +10,15 @@ def elgamal_key(n) -> int:
     return x
 
 #FIXME: Set hardcoded to be False by default once we've a real algorithm
-def cryptosystem(λ: int, hardcoded=True) -> Tuple[ModularGroup,MInt,MInt]:
+def cryptosystem(λ: int, hardcoded=False) -> Tuple[ModularGroup,MInt,MInt]:
     if hardcoded:
         G = hardcoded_group()
         g = G.generator
         p = G.divisor
     else: #FIXME: this branch is garbage
-        p = crypto_prime(λ)
-        g = ModularInt(2 + secrets.randbelow(p - 2), p)
-        G = ModularGroup(divisor=p, order=p-1, generator=g)
+        G = Gen_Groups(λ)
+        p = G.divisor
+        g = G.generator
     c = elgamal_key(p)
     e = g ** c
     return (G, e, c)
