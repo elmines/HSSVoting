@@ -3,7 +3,6 @@ from functools import reduce
 from collections import namedtuple
 from .modular import *
 from .prime import *
-ModularGroup = namedtuple("ModularGroup", ["divisor", "order", "generator"])
 
 
 def Gen_Groups(λ: int) -> "ModularGroup":

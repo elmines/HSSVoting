@@ -64,7 +64,7 @@ def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
     n = G.divisor
     w_enc = enc_elgamal(g, e, w)
 
-    l = bit_length(ModularInt(1, n))
+    l = bit_length(ModularInt(1, n))#FIXME G.divisor or G.order
 
     # Compute [[c^(t)*w]]_c for every bit c^(t) of c
     prod_encs = starmap(lambda h_1,h_2: (h_1**w, h_2**w), c_encs)
@@ -112,6 +112,6 @@ def convert_shares(b: int, share: ModularInt, instr_id: int, δ: float, M: int, 
     φ_prime = Get_phi_prime(instr_id,φ)
     if b == 1: share = share.inv()
     i_b = distributed_d_log(G, share, δ, M, φ_prime)
-    additive_share = (G.divisor - i_b) if b == 0 else i_b
-    additive_share = ModularInt(additive_share, G.divisor)
+    additive_share = (G.divisor - i_b) if b == 0 else i_b#FIXME G.order - i_b
+    additive_share = ModularInt(additive_share, G.divisor) #FIXME G.order
     return additive_share

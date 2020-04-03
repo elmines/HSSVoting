@@ -17,7 +17,7 @@ class Evaluator(object):
         self.M = M
         self.φ = φ
 
-        l = bit_length(G.generator)
+        l = bit_length(G.generator)#FIXME the generator 2 of G will have a bit-length of 2, maybe it should be bitlength of divisor or order?
         self.δ_prime = δ / ((l+1) * M * self.S)
 
     @property
@@ -46,6 +46,7 @@ class Evaluator(object):
         """
         This is not a thread-safe function
         """
+        #FIXME are the ModularInts in memory additive or multiplicative or both? need to be careful.
         memory: Dict[int,Tuple[ModularInt]] = dict()
         outputs = []
     

@@ -32,6 +32,7 @@ def enc_elgamal(g: ModularInt, e: ModularInt, w: int) -> Tuple[MInt,MInt]:
 
 def dec_elgamal(G: ModularGroup, c: int, ct) -> ModularInt:
     assert isinstance(c,int)
+    #FIXME G.order or G.divisor
     order = G.order
     g = G.generator
     (c1, c2) = ct
