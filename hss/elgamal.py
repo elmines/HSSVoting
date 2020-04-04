@@ -9,16 +9,10 @@ def elgamal_key(n) -> int:
     x = 1 + secrets.randbelow(n - 1)
     return x
 
-#FIXME: Set hardcoded to be False by default once we've a real algorithm
 def cryptosystem(λ: int, hardcoded=False) -> Tuple[ModularGroup,MInt,MInt]:
-    if hardcoded:
-        G = hardcoded_group()
-        g = G.generator
-        p = G.divisor
-    else: #FIXME: this branch is garbage
-        G = Gen_Groups(λ)
-        p = G.divisor
-        g = G.generator
+    G = Gen_Groups(λ)
+    p = G.divisor
+    g = G.generator
     c = elgamal_key(p)
     e = g ** c
     return (G, e, c)
@@ -32,11 +26,11 @@ def enc_elgamal(g: ModularInt, e: ModularInt, w: int) -> Tuple[MInt,MInt]:
 
 def dec_elgamal(G: ModularGroup, c: int, ct) -> ModularInt:
     assert isinstance(c,int)
-    #FIXME G.order or G.divisor
-    order = G.order
     g = G.generator
+    order = G.order
     (c1, c2) = ct
-    s_inv = c1**( order - c )
+    exp = order - (c % order)
+    s_inv = c1**exp
     g_pow_m = c2 * s_inv
     m = discrete_log(g, g_pow_m)
     return m
