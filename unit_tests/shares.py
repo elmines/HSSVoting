@@ -30,11 +30,11 @@ class TestShares(unittest.TestCase):
             self.assertEqual( bit_length(ModularInt(1, div)), correct )
 
     def test_additive_share(self, iterations=5):
-        divisor = 37
         for _ in range(iterations):
-            x = 1 + random.randrange(divisor - 2)
-            shares = additive_share(x)
-            self.assertEqual( sum(shares), x)
+            divisor = random.randrange(1000)
+            x = random.randrange(divisor)
+            (x0,x1) = additive_share(x, divisor)
+            self.assertEqual( (x0+x1) % divisor, x)
 
     def test_bitwise_enc(self):
         (G, e, c) = cryptosystem(16)
@@ -65,11 +65,12 @@ class TestShares(unittest.TestCase):
         self._compare_bits(G, e, c, c_enc_bits)
 
     def test_enc(self):
-        w = 17
         (pk, ekA, ekB, _) = gen(16)
 
         (G, e, one_enc, c_enc_bits) = pk
         c = ekA[2] + ekB[2]
+
+        w = random.randrange(G.order)
 
         (w_enc, prod_encs) = enc(pk, w)
 
@@ -79,20 +80,20 @@ class TestShares(unittest.TestCase):
         cand_prod_bits = list(map(lambda b: dec_elgamal(G, c, b), prod_encs))
         self.assertEqual(correct_prod_bits, cand_prod_bits)
 
-    def test_mult_shares(self):
+    def not_test_mult_shares(self):
         (pk, ekA, ekB, _) = gen(16)
         (G, e, _, _) = pk
         g = G.generator
         c = ekA[2] + ekB[2]
 
-        x = random.randrange(2, G.divisor - 1)
-        y = 1 + random.randrange(G.divisor // x) # mult_shares only works for 0 <= xy < q
+        x = random.randrange(2, G.order - 1)
+        y = 1 + random.randrange(G.order // x) # mult_shares only works for 0 <= xy < q
 
         # x as left operand
         x_enc = enc_elgamal(g, e, x)
         self.assertEqual(x, dec_elgamal(G, c, x_enc))
-        (yA, yB) = additive_share(y)
-        (cyA, cyB) = additive_share(y*c)
+        (yA, yB) = additive_share(y, G.divisor)
+        (cyA, cyB) = additive_share(y*c, G.divisor)
         xyA = mult_shares(x_enc, yA, cyA)
         xyB = mult_shares(x_enc, yB, cyB)
         self.assertEqual(xyA*xyB, g**(x*y))
@@ -116,15 +117,15 @@ class TestShares(unittest.TestCase):
 
         correct = 0
         for i in range(iterations):
-            x = random.randrange(1, G.divisor - 1)
+            x = random.randrange(1, G.order)
             instr_id = random.randrange(10, G.divisor) # A little ways into a program
             φ_prime = Get_phi_prime(instr_id, φ)
-            (x0, x1) = additive_share(x)
+            (x0, x1) = additive_share(x, G.divisor)
             (x0, x1) = (g**x0, g**x1)
             x0 = x0.inv()
             y0 = distributed_d_log(G, x0, δ, M, φ_prime)
             y1 = distributed_d_log(G, x1, δ, M, φ_prime)
-            if y0 - y1 == x: correct += 1
+            if (y0 - y1) % G.divisor == x: correct += 1
         self.assertTrue(correct > 0) #FIXME: Use a better lower probability bound than this
 
     def test_convert_shares(self, iterations=100):
@@ -136,12 +137,11 @@ class TestShares(unittest.TestCase):
 
         correct = 0
         for i in range(iterations):
-            x = random.randrange(1, G.divisor - 1)
+            x = random.randrange(1, G.divisor)
             instr_id = random.randrange(10, G.divisor) # A little ways into a program
-            (x0, x1) = additive_share(x)
+            (x0, x1) = additive_share(x, G.divisor)
             (x0, x1) = (g**x0, g**x1)
             y0 = convert_shares(0, x0, instr_id, δ, M, G, φ)
             y1 = convert_shares(1, x1, instr_id, δ, M, G, φ)
-            #pdb.set_trace()
             if y0 + y1 == x: correct += 1
         self.assertTrue(correct > 0) #FIXME: Use a better lower probability bound than this

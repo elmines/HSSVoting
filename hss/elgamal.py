@@ -24,12 +24,11 @@ def enc_elgamal(g: ModularInt, e: ModularInt, w: int) -> Tuple[MInt,MInt]:
     c2 = g**w * e**y
     return (c1, c2)
 
-def dec_elgamal(G: ModularGroup, c: int, ct) -> ModularInt:
-    assert isinstance(c,int)
+def dec_elgamal(G: ModularGroup, c, ct) -> ModularInt:
     g = G.generator
     order = G.order
     (c1, c2) = ct
-    exp = order - (c % order)
+    exp = order - (int(c) % order)
     s_inv = c1**exp
     g_pow_m = c2 * s_inv
     m = discrete_log(g, g_pow_m)

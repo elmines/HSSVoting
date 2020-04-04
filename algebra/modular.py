@@ -55,7 +55,7 @@ class ModularInt(object):
 
     def __pow__(self, exponent) -> "ModularInt":
         if type(exponent) == ModularInt:
-            raise Exception("Don't use a ModularInt as an exponent. If you indeed know what you're doing, cast it to an int()")
+            exponent = exponent.value
         result = modular_exp(self.value, exponent, self.divisor)
         return ModularInt(result, self.divisor)
 

@@ -11,11 +11,10 @@ from .elgamal import cryptosystem, enc_elgamal
 from .types import *
 
 
-def additive_share(x: int) -> Tuple[int,int]:
-    assert isinstance(x, int)
-    if x == 0: return (0, 0)
-    x0 = secrets.randbelow(x)
-    x1 = x - x0
+def additive_share(x: int, divisor: int) -> Tuple[int,int]:
+    x = int(x)
+    x0 = secrets.randbelow(divisor)
+    x1 = (x - x0) % divisor
     return (x0, x1)
 
 def bit_length(x: ModularInt) -> int:
@@ -49,8 +48,8 @@ def gen(λ: int) -> SharingScheme:
     one_enc = enc_elgamal(g, e, 1)
     c_encs = bitwise_enc(g, e, c)
 
-    one_share = additive_share(1)
-    c_share = additive_share(c)
+    one_share = tuple(ModularInt(x,G.divisor) for x in additive_share(1, G.divisor))
+    c_share   = tuple(ModularInt(x,G.divisor) for x in additive_share(c, G.divisor))
 
     pk = (G, e, one_enc, c_encs)
     ek_0 = (pk, one_share[0], c_share[0])
@@ -112,6 +111,6 @@ def convert_shares(b: int, share: ModularInt, instr_id: int, δ: float, M: int, 
     φ_prime = Get_phi_prime(instr_id,φ)
     if b == 1: share = share.inv()
     i_b = distributed_d_log(G, share, δ, M, φ_prime)
-    additive_share = (G.divisor - i_b) if b == 0 else i_b#FIXME G.order - i_b
-    additive_share = ModularInt(additive_share, G.divisor) #FIXME G.order
+    additive_share = (G.divisor - i_b) if b == 0 else i_b  #FIXME G.order - i_b
+    additive_share = ModularInt(additive_share, G.divisor)
     return additive_share
