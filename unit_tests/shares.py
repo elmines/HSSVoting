@@ -88,6 +88,7 @@ class TestShares(unittest.TestCase):
 
         x = random.randrange(2, G.order - 1)
         y = 1 + random.randrange(G.order // x) # mult_shares only works for 0 <= xy < q
+        self.assertTrue( x*y < G.order )
 
         # x as left operand
         x_enc = enc_elgamal(g, e, x)
