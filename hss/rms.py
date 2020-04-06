@@ -17,7 +17,7 @@ class Evaluator(object):
         self.M = M
         self.φ = φ
 
-        l = bit_length(G.generator)#FIXME the generator 2 of G will have a bit-length of 2, maybe it should be bitlength of divisor or order?
+        l = bit_length(G.generator)
         self.δ_prime = δ / ((l+1) * M * self.S)
 
     @property
@@ -46,7 +46,6 @@ class Evaluator(object):
         """
         This is not a thread-safe function
         """
-        #FIXME are the ModularInts in memory additive or multiplicative or both? need to be careful.
         memory: Dict[int,Tuple[ModularInt]] = dict()
         outputs = []
     
@@ -77,8 +76,8 @@ class Evaluator(object):
                 (y_share, cy_share) = memory[i]
                 z_share = y_share
                 offset = (self.φ)(instr_no,self.G.generator) 
-                if b == 1: z_share = z_share - offset
-                else:      z_share = z_share + offset
+                if b == 1: z_share = z_share - int(offset)
+                else:      z_share = z_share + int(offset)
                 outputs.append(z_share)
             else:
                 raise Exception(f"Invalid RMS instruction {op}")

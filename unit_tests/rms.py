@@ -22,7 +22,7 @@ class TestRMS(unittest.TestCase):
         (pk, ek0, ek1, φ) = gen(16)
         (G, e, one_enc, c_encs) = pk
         δ = math.exp(-5)
-        M = 5
+        M = random.randrange(1,G.order)
         servers = Evaluator(G, ["placeholder", "placeholder"], φ, M, δ)
         (one0, one1) = (ek0[1], ek1[1])
         (c0, c1) = (ek0[2], ek1[2])
@@ -51,7 +51,7 @@ class TestProgram(unittest.TestCase):
     def M():
         return 5
 
-    def not_test_identity_program(self, iterations=10):
+    def test_identity_program(self, iterations=10):
         correct = 0
         for i in range(iterations):
             inputs = [random.randrange(TestProgram.M())]
@@ -98,7 +98,7 @@ class TestProgram(unittest.TestCase):
             if 1 == results: correct += 1
         self.assertTrue(correct > 0)
 
-    def test_conj_nonunanimous(self, iterations=50):
+    def not_test_conj_nonunanimous(self, iterations=50):
         n = 5
         prog = make_conjunction_program(n)
         correct = 0
