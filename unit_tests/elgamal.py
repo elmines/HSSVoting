@@ -10,7 +10,7 @@ class ElGamal(unittest.TestCase):
     def test_encryption(self):
         (G, e, c) = cryptosystem(16)
         w = random.randrange(G.order)
-        ct = enc_elgamal(G.generator, e, w)
+        ct = enc_elgamal(G, e, w)
         w_cand = dec_elgamal(G, c, ct)
         self.assertEqual(w, w_cand)
 
@@ -21,7 +21,7 @@ class ElGamal(unittest.TestCase):
         for _ in range(total):
             votes[random.randrange(len(votes))] += 1
 
-        cts = map(lambda w: enc_elgamal(G.generator, e, w), votes)
+        cts = map(lambda w: enc_elgamal(G, e, w), votes)
         tuple_prod = lambda a,b: (a[0]*b[0], a[1]*b[1])
         ct_sum = reduce(tuple_prod, cts)
         cand_sum = dec_elgamal(G, c, ct_sum)

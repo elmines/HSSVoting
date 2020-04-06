@@ -39,11 +39,11 @@ class TestShares(unittest.TestCase):
     def test_bitwise_enc(self):
         (G, e, c) = cryptosystem(16)
         g = G.generator
-        c_enc_bits = bitwise_enc(g, e, c)
+        c_enc_bits = bitwise_enc(G, e, c)
         self._compare_bits(G, e, c, c_enc_bits)
 
     def _compare_bits(self, G, e, c, c_enc_bits):
-        correct_c_bits = list(biterate(ModularInt(c, G.divisor)))
+        correct_c_bits = list(biterate(ModularInt(c, G.order)))
         self.assertEqual(len(correct_c_bits), len(c_enc_bits))
         cand_c_bits = map(lambda b: dec_elgamal(G, c, b), c_enc_bits)
         for (correct_bit, cand_bit) in zip(correct_c_bits, cand_c_bits):
@@ -76,38 +76,42 @@ class TestShares(unittest.TestCase):
 
         self.assertEqual(w, dec_elgamal(G, c, w_enc))
 
-        correct_prod_bits = list(map(lambda b: w*b, biterate(ModularInt(c,G.divisor))))
+        correct_prod_bits = list(map(lambda b: w*b, biterate(ModularInt(c,G.order))))
         cand_prod_bits = list(map(lambda b: dec_elgamal(G, c, b), prod_encs))
         self.assertEqual(correct_prod_bits, cand_prod_bits)
 
-    def not_test_mult_shares(self):
+    def test_mult_shares(self):
         (pk, ekA, ekB, _) = gen(16)
         (G, e, _, _) = pk
         g = G.generator
         c = ekA[2] + ekB[2]
 
-        x = random.randrange(2, G.order - 1)
+        x = random.randrange(2, G.order // 2)
         y = 1 + random.randrange(G.order // x) # mult_shares only works for 0 <= xy < q
-        self.assertTrue( x*y < G.order )
+
 
         # x as left operand
-        x_enc = enc_elgamal(g, e, x)
+        cy = c * y 
+        x_enc = enc_elgamal(G, e, x)
         self.assertEqual(x, dec_elgamal(G, c, x_enc))
-        (yA, yB) = additive_share(y, G.divisor)
-        (cyA, cyB) = additive_share(y*c, G.divisor)
+        (yA, yB)   = additive_share(y,  G.order)
+        (cyA, cyB) = additive_share(cy, G.order)
         xyA = mult_shares(x_enc, yA, cyA)
         xyB = mult_shares(x_enc, yB, cyB)
         self.assertEqual(xyA*xyB, g**(x*y))
 
         # x as right operand
-        y_enc = enc_elgamal(g, e, y)
+        cx = c * x 
+        y_enc = enc_elgamal(G, e, y)
         self.assertEqual(y, dec_elgamal(G, c, y_enc))
-        (xA, xB) = additive_share(x)
-        (cxA, cxB) = additive_share(x*c)
+        (xA, xB)   = additive_share(x,  G.order)
+        (cxA, cxB) = additive_share(cx, G.order)
         yxA = mult_shares(y_enc, xA, cxA)
         yxB = mult_shares(y_enc, xB, cxB)
         self.assertEqual(yxA*yxB, g**(x*y))
-       
+
+
+      
 
     def test_distributed_d_log(self, iterations=100):
         (pk, ekA, ekB, φ) = gen(16)
@@ -119,9 +123,9 @@ class TestShares(unittest.TestCase):
         correct = 0
         for i in range(iterations):
             x = random.randrange(1, G.order)
-            instr_id = random.randrange(10, G.divisor) # A little ways into a program
+            instr_id = random.randrange(10, 100) # A little ways into a program
             φ_prime = Get_phi_prime(instr_id, φ)
-            (x0, x1) = additive_share(x, G.divisor)
+            (x0, x1) = additive_share(x, G.order)
             (x0, x1) = (g**x0, g**x1)
             x0 = x0.inv()
             y0 = distributed_d_log(G, x0, δ, M, φ_prime)
@@ -138,9 +142,9 @@ class TestShares(unittest.TestCase):
 
         correct = 0
         for i in range(iterations):
-            x = random.randrange(1, G.divisor)
-            instr_id = random.randrange(10, G.divisor) # A little ways into a program
-            (x0, x1) = additive_share(x, G.divisor)
+            x = random.randrange(1, G.order)
+            instr_id = random.randrange(10, G.order) # A little ways into a program
+            (x0, x1) = additive_share(x, G.order)
             (x0, x1) = (g**x0, g**x1)
             y0 = convert_shares(0, x0, instr_id, δ, M, G, φ)
             y1 = convert_shares(1, x1, instr_id, δ, M, G, φ)

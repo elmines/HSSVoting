@@ -11,15 +11,16 @@ def elgamal_key(n) -> int:
 
 def cryptosystem(λ: int, hardcoded=False) -> Tuple[ModularGroup,MInt,MInt]:
     G = Gen_Groups(λ)
-    p = G.divisor
+    q = G.order
     g = G.generator
-    c = elgamal_key(p)
+    c = elgamal_key(q)
     e = g ** c
     return (G, e, c)
 
-def enc_elgamal(g: ModularInt, e: ModularInt, w: int) -> Tuple[MInt,MInt]:
-    n = g.divisor
-    y = elgamal_key(n) # The ephemeral key
+def enc_elgamal(G: ModularGroup, e: ModularInt, w: int) -> Tuple[MInt,MInt]:
+    order = G.order
+    g = G.generator
+    y = elgamal_key(order) # The ephemeral key
     c1 = g**y
     c2 = g**w * e**y
     return (c1, c2)

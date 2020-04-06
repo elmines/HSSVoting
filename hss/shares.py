@@ -32,8 +32,8 @@ def biterate(x: ModularInt) -> Generator[int,None,None]:
         yield 1 & (x >> i)
 
 
-def bitwise_enc(g: ModularInt, e: ModularInt, c: int) -> List[ModularInt]:
-    return [enc_elgamal(g, e, c_t) for c_t in biterate(ModularInt(c, g.divisor))]
+def bitwise_enc(G: ModularGroup, e: ModularInt, c: int) -> List[ModularInt]:
+    return [enc_elgamal(G, e, c_t) for c_t in biterate(ModularInt(c, G.order))]
 
 def gen(λ: int) -> SharingScheme:
     """
@@ -45,11 +45,11 @@ def gen(λ: int) -> SharingScheme:
     n = G.divisor
     g = G.generator
 
-    one_enc = enc_elgamal(g, e, 1)
-    c_encs = bitwise_enc(g, e, c)
+    one_enc = enc_elgamal(G, e, 1)
+    c_encs = bitwise_enc(G, e, c)
 
-    one_share = tuple(ModularInt(x,G.divisor) for x in additive_share(1, G.divisor))
-    c_share   = tuple(ModularInt(x,G.divisor) for x in additive_share(c, G.divisor))
+    one_share = tuple(ModularInt(x,G.order) for x in additive_share(1, G.order))
+    c_share   = tuple(ModularInt(x,G.order) for x in additive_share(c, G.order))
 
     pk = (G, e, one_enc, c_encs)
     ek_0 = (pk, one_share[0], c_share[0])
@@ -61,7 +61,7 @@ def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
     (G, e, _, c_encs) = pk
     g = G.generator
     n = G.divisor
-    w_enc = enc_elgamal(g, e, w)
+    w_enc = enc_elgamal(G, e, w)
 
     l = bit_length(ModularInt(1, n))#FIXME G.divisor or G.order
 
@@ -71,7 +71,7 @@ def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
     # For additional randomness, multiply every encryption by an encryption of 0
     # Since multiplication in the ciphertext space is addition in the plaintext space,
     #  this is equivalent to adding 0 to our input w
-    zero_encs = map(lambda _: enc_elgamal(g,e,0), range(l))
+    zero_encs = map(lambda _: enc_elgamal(G,e,0), range(l))
     tuple_prod = lambda a, b: (a[0]*b[0], a[1]*b[1])
     prod_encs = starmap(tuple_prod, zip(prod_encs, zero_encs))
 
@@ -80,13 +80,8 @@ def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
 
 def mult_shares(x_enc: ModularInt, y_share: ModularInt, cy_share: ModularInt) -> ModularInt:
     (h1, h2) = x_enc
-    divisor = h1.divisor
-
     a = h2 ** y_share
-    tmp = h1**cy_share
     b = (h1 ** cy_share).inv()
-    assert b * tmp == 1, f"b={b}, tmp={tmp}"
-    
     xy_mult_share = a * b
     return xy_mult_share
 
@@ -94,23 +89,19 @@ def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ:PRFp
     g = G.generator
     h_prime = h
     i = 0
-    T = math.floor( 2*M * math.log(2/δ) ) / δ
+    T = (2*M * math.log(2/δ)) / δ
     prefix_len = math.ceil( _binary_log(2*M/δ) )
 
     φ_pref = prefix(φ, prefix_len)
-    
-    rand_out = φ_pref(h_prime)
-    while rand_out != 0 and i < T:
-        assert len(bin(rand_out)[2:]) <= prefix_len
+    while φ_pref(h_prime) != 0 and i < T:
         h_prime = h_prime * g
         i += 1
-        rand_out = φ_pref(h_prime)
     return i
 
 def convert_shares(b: int, share: ModularInt, instr_id: int, δ: float, M: int, G: ModularGroup, φ:PRF) -> ModularInt:
     φ_prime = Get_phi_prime(instr_id,φ)
     if b == 1: share = share.inv()
     i_b = distributed_d_log(G, share, δ, M, φ_prime)
-    additive_share = (G.divisor - i_b) if b == 0 else i_b  #FIXME G.order - i_b
-    additive_share = ModularInt(additive_share, G.divisor)
+    additive_share = (G.order - i_b) if b == 0 else i_b
+    additive_share = ModularInt(additive_share, G.order)
     return additive_share
