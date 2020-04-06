@@ -2,9 +2,8 @@ from random import Random
 from .types import *
 from .elgamal import cryptosystem, enc_elgamal
 #Pseudo-random function (PRF) from Goldreich-Goldwasser-Micali 1984 (GGM)
-def PRFGen():
-	#get binary string of security parameter 1^λ
-	def φ(identifier:int,g : ModularInt):
+def PRFGen(grp: ModularGroup):
+	def φ(identifier: int, g: ModularInt):
 		id_bits = bin(identifier)[2:] 
 		λ = len(id_bits)
 		g_length=len(bin(g.divisor)[2:])
@@ -17,8 +16,7 @@ def PRFGen():
 				g_val= int(G[0 : g_length],2)
 			elif id_bits[λ-1-i] == "1":
 				g_val=int(G[g_length : g_length*2],2)
-		#	print("i=",i,",rand bits=",rand_bits,"G=",G,"id_bits[λ-1-i]=",id_bits[λ-1-i],"g=",g) 
-		return ModularInt(g_val,g.divisor)
+		return ModularInt(g_val,grp.order) # Output must be l bits, so take g_val % G.order
 	return φ
 
 

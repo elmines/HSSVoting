@@ -17,7 +17,7 @@ class Evaluator(object):
         self.M = M
         self.φ = φ
 
-        l = bit_length(G.generator)
+        l = bit_length(ModularInt(1, G.order))
         self.δ_prime = δ / ((l+1) * M * self.S)
 
     @property

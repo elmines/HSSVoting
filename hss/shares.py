@@ -54,7 +54,7 @@ def gen(λ: int) -> SharingScheme:
     pk = (G, e, one_enc, c_encs)
     ek_0 = (pk, one_share[0], c_share[0])
     ek_1 = (pk, one_share[1], c_share[1])
-    φ = PRFGen() 
+    φ = PRFGen(G) 
     return (pk, ek_0, ek_1, φ)
 
 def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
