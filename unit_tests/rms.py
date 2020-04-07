@@ -19,7 +19,7 @@ class TestRMS(unittest.TestCase):
         self.assertTrue(correct > 0) #FIXME: Use a better probability bound than this
 
     def _rms_load_trial(self):
-        (pk, ek0, ek1, φ) = gen(16)
+        (pk, ek0, ek1, φ) = gen(8)
         (G, e, one_enc, c_encs) = pk
         δ = math.exp(-5)
         M = random.randrange(1,G.order)
@@ -114,7 +114,7 @@ class TestProgram(unittest.TestCase):
 
     def _test_specific_program(self, prog, inputs, M=None, δ=math.exp(-5)):
         if not M: M = TestProgram.M()
-        (pk, ek0, ek1, φ) = gen(16)
+        (pk, ek0, ek1, φ) = gen(8)
         (G, *rest) = pk
         servers = Evaluator(G, prog, φ, M, δ)
         (one0, one1) = (ek0[1], ek1[1])

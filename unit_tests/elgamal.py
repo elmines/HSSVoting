@@ -8,14 +8,14 @@ from hss import enc_elgamal, cryptosystem, dec_elgamal
 class ElGamal(unittest.TestCase):
 
     def test_encryption(self):
-        (G, e, c) = cryptosystem(16)
+        (G, e, c) = cryptosystem(8)
         w = random.randrange(G.order)
         ct = enc_elgamal(G, e, w)
         w_cand = dec_elgamal(G, c, ct)
         self.assertEqual(w, w_cand)
 
     def test_homomorphism(self):
-        (G, e, c) = cryptosystem(16)
+        (G, e, c) = cryptosystem(8)
         total = random.randrange(G.order)
         votes = [0 for _ in range(3)]
         for _ in range(total):

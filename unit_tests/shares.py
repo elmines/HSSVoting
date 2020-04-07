@@ -37,7 +37,7 @@ class TestShares(unittest.TestCase):
             self.assertEqual( (x0+x1) % divisor, x)
 
     def test_bitwise_enc(self):
-        (G, e, c) = cryptosystem(16)
+        (G, e, c) = cryptosystem(8)
         g = G.generator
         c_enc_bits = bitwise_enc(G, e, c)
         self._compare_bits(G, e, c, c_enc_bits)
@@ -50,7 +50,7 @@ class TestShares(unittest.TestCase):
             self.assertEqual(correct_bit, cand_bit)
 
     def test_gen(self):
-        (pk, ekA, ekB, _) = gen(16)
+        (pk, ekA, ekB, _) = gen(8)
         self.assertEqual(pk, ekA[0])
         self.assertEqual(pk, ekB[0])
 
@@ -65,7 +65,7 @@ class TestShares(unittest.TestCase):
         self._compare_bits(G, e, c, c_enc_bits)
 
     def test_enc(self):
-        (pk, ekA, ekB, _) = gen(16)
+        (pk, ekA, ekB, _) = gen(8)
 
         (G, e, one_enc, c_enc_bits) = pk
         c = ekA[2] + ekB[2]
@@ -81,7 +81,7 @@ class TestShares(unittest.TestCase):
         self.assertEqual(correct_prod_bits, cand_prod_bits)
 
     def test_mult_shares(self):
-        (pk, ekA, ekB, _) = gen(16)
+        (pk, ekA, ekB, _) = gen(8)
         (G, e, _, _) = pk
         g = G.generator
         c = ekA[2] + ekB[2]
@@ -114,7 +114,7 @@ class TestShares(unittest.TestCase):
       
 
     def test_distributed_d_log(self, iterations=100):
-        (pk, ekA, ekB, φ) = gen(16)
+        (pk, ekA, ekB, φ) = gen(8)
         (G, e, one_enc, c_enc_bits) = pk
         g = G.generator
         M = 5
@@ -134,7 +134,7 @@ class TestShares(unittest.TestCase):
         self.assertTrue(correct > 0) #FIXME: Use a better lower probability bound than this
 
     def test_convert_shares(self, iterations=100):
-        (pk, ekA, ekB, φ) = gen(16)
+        (pk, ekA, ekB, φ) = gen(8)
         (G, e, one_enc, c_enc_bits) = pk
         g = G.generator
         M = 5
