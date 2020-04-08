@@ -12,8 +12,8 @@ def PRFGen(grp: ModularGroup):
         g_val = g.value
         for i in range(λ):
             rand_bits = Random(g.value).getrandbits(2*g_length)
-            b = (identifier >> i) ^ 1
-            if b: g_val = rand_bits ^ right_mask  # The right half of rand_bits
+            b = (identifier >> i) & 1
+            if b: g_val = rand_bits & right_mask  # The right half of rand_bits
             else: g_val = (rand_bits >> g_length) # The left half of rand_bits
         return ModularInt(g_val,grp.order) # Output must be l bits, so take g_val % G.order
     return φ
