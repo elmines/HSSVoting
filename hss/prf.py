@@ -3,21 +3,20 @@ from .types import *
 from .elgamal import cryptosystem, enc_elgamal
 #Pseudo-random function (PRF) from Goldreich-Goldwasser-Micali 1984 (GGM)
 def PRFGen(grp: ModularGroup):
-	def φ(identifier: int, g: ModularInt):
-		id_bits = bin(identifier)[2:] 
-		λ = len(id_bits)
-		g_length=len(bin(g.divisor)[2:])
-		g_val = g.value
-		for i in range(λ):
-			my_random = Random(g.value)
-			rand_bits = my_random.getrandbits(2*g_length)
-			G = bin(rand_bits)[2:].zfill(2*g_length)
-			if id_bits[λ-1-i] == "0":
-				g_val= int(G[0 : g_length],2)
-			elif id_bits[λ-1-i] == "1":
-				g_val=int(G[g_length : g_length*2],2)
-		return ModularInt(g_val,grp.order) # Output must be l bits, so take g_val % G.order
-	return φ
+    g_length = len(bin(grp.divisor)[2:])
+    right_mask = 2**g_length - 1 # A binary string of ones
+
+    def φ(identifier: int, g: ModularInt):
+        id_bits = bin(identifier)[2:] 
+        λ = len(id_bits)
+        g_val = g.value
+        for i in range(λ):
+            rand_bits = Random(g.value).getrandbits(2*g_length)
+            b = (identifier >> i) ^ 1
+            if b: g_val = rand_bits ^ right_mask  # The right half of rand_bits
+            else: g_val = (rand_bits >> g_length) # The left half of rand_bits
+        return ModularInt(g_val,grp.order) # Output must be l bits, so take g_val % G.order
+    return φ
 
 
 def Get_phi_prime(identifier:int,φ):
