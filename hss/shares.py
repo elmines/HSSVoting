@@ -63,7 +63,7 @@ def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
     n = G.divisor
     w_enc = enc_elgamal(G, e, w)
 
-    l = bit_length(ModularInt(1, n))#FIXME G.divisor or G.order
+    l = len(c_encs)
 
     # Compute [[c^(t)*w]]_c for every bit c^(t) of c
     prod_encs = starmap(lambda h_1,h_2: (h_1**w, h_2**w), c_encs)
