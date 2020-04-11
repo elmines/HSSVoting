@@ -19,6 +19,8 @@ class Evaluator(object):
 
         l = bit_length(ModularInt(1, G.order))
         self.δ_prime = δ / ((l+1) * M * self.S)
+        self.l = l
+
 
     @property
     def S(self):
@@ -35,7 +37,7 @@ class Evaluator(object):
         wy_add_share  = convert_shares(b, wy_mult_share, concat_bits(instr_no, 0), δ_prime, M, G, φ)
         
         cwy_bitwise_shares = []
-        for (t, bitwise_enc) in enumerate(bitwise_encs):
+        for (t, bitwise_enc) in enumerate(bitwise_encs, start=1):
             bitwise_mult_share = mult_shares(bitwise_enc, y_share, cy_share)
             cwy_bitwise_shares.append( convert_shares(b, bitwise_mult_share, concat_bits(instr_no,t), δ_prime, M, G, φ) )
         cwy_add_share = sum( map(lambda t: 2**t * cwy_bitwise_shares[t], range(len(cwy_bitwise_shares))) )
