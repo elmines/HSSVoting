@@ -90,7 +90,7 @@ def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ:PRFp
     h_prime = h
     i = 0
     T = (2*M * math.log(2/δ)) / δ
-    T = min(T, G.order - 1)
+    T = min(T, G.order)
     prefix_len = math.ceil( _binary_log(2*M/δ) )
 
     φ_pref = prefix(φ, prefix_len)
