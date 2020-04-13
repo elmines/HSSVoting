@@ -13,12 +13,9 @@ def PRFGen(grp: ModularGroup):
         λ = len(id_bits)
         g_val = g.value
         for i in range(λ):
-<<<<<<< HEAD
             rand_bits = Random(g_val).getrandbits(2*g_length)
-=======
             rng.seed(g_val)
             rand_bits = rng.getrandbits(2*g_length)
->>>>>>> 2ddd44156519057de5b107786e67788f853fd498
             b = (identifier >> i) & 1
             if b: g_val = rand_bits & right_mask  # The right half of rand_bits
             else: g_val = (rand_bits >> g_length) # The left half of rand_bits
