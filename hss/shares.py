@@ -63,7 +63,7 @@ def enc(pk: PK, w: int) -> Tuple[ModularInt, List[ModularInt]]:
     n = G.divisor
     w_enc = enc_elgamal(G, e, w)
 
-    l = bit_length(ModularInt(1, n))#FIXME G.divisor or G.order
+    l = len(c_encs)
 
     # Compute [[c^(t)*w]]_c for every bit c^(t) of c
     prod_encs = starmap(lambda h_1,h_2: (h_1**w, h_2**w), c_encs)
@@ -90,6 +90,7 @@ def distributed_d_log(G: ModularGroup, h: ModularInt, δ: float, M: int, φ:PRFp
     h_prime = h
     i = 0
     T = (2*M * math.log(2/δ)) / δ
+    T = min(T, G.order)
     prefix_len = math.ceil( _binary_log(2*M/δ) )
 
     φ_pref = prefix(φ, prefix_len)
