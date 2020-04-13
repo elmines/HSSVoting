@@ -62,6 +62,17 @@ def distinct_primes(*args, **kwargs) -> Tuple[int,int]:
 def rand_range(lower_inclusive: int, upper_exclusive: int) -> Callable[[],int]:
     return lambda: lower_inclusive + secrets.randbelow(upper_exclusive - lower_inclusive)
 
+def conversion_friendly_primes(λ: int) -> Tuple[int,int]:
+    q = crypto_prime(λ)
+    p = 2*q+1
+    while not (bounded_miller_test(p) and (p % 8 == 7 or p % 8 == 1)):
+        q = crypto_prime(λ)
+        p = 2*q+1
+    return (p,q)
+
+
+
+
 def miller_test(n: int, bases: Iterable[int]) -> bool:
     """
     :rtype: bool

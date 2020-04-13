@@ -7,6 +7,7 @@ from .prime import *
 
 def Gen_Groups(λ: int) -> "ModularGroup":
     primes = _pick_primes(λ)
+    primes = conversion_friendly_primes(λ)
     if not primes: raise Exception(f"Security level λ={λ} greater than available groups")
     (p,q) = primes
     G = ModularGroup(divisor=p,order=q,generator=ModularInt(2,p))#this group DOES need a generator, 2 is valid
@@ -26,3 +27,7 @@ def _pick_primes(λ: int) -> Tuple[int,int]:
 
 def _binary_log(x):
     return math.log(x)/math.log(2)
+
+
+
+

@@ -98,7 +98,7 @@ class TestProgram(unittest.TestCase):
             if 1 == results: correct += 1
         self.assertTrue(correct > 0)
 
-    def not_test_conj_nonunanimous(self, iterations=50):
+    def test_conj_nonunanimous(self, iterations=50):
         n = 5
         prog = make_conjunction_program(n)
         correct = 0
@@ -114,7 +114,8 @@ class TestProgram(unittest.TestCase):
 
     def _test_specific_program(self, prog, inputs, M=None, δ=math.exp(-5)):
         if not M: M = TestProgram.M()
-        (pk, ek0, ek1, φ) = gen(8)
+        λ=8
+        (pk, ek0, ek1, φ) = gen(λ)
         (G, *rest) = pk
         servers = Evaluator(G, prog, φ, M, δ)
         (one0, one1) = (ek0[1], ek1[1])

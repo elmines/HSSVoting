@@ -1,6 +1,6 @@
 import unittest
 import algebra
-from algebra import bounded_miller_test, crypto_prime
+from algebra import bounded_miller_test, crypto_prime, conversion_friendly_primes
 
 class Prime(unittest.TestCase):
     def test_low_bound(self):
@@ -22,4 +22,10 @@ class Prime(unittest.TestCase):
             p = crypto_prime(security)
             self.assertTrue(0 < p)
             self.assertTrue(p < divisor)
-
+    
+    def test_conversion_friendly_primes(self):
+        λ = 8
+        iterations = 10
+        for _ in range(iterations):
+            (p,q)=conversion_friendly_primes(λ)
+#            print(f"(p,q)=({p},{q})")

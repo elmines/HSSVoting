@@ -11,10 +11,11 @@ def PRFGen(grp: ModularGroup):
         λ = len(id_bits)
         g_val = g.value
         for i in range(λ):
-            rand_bits = Random(g.value).getrandbits(2*g_length)
+            rand_bits = Random(g_val).getrandbits(2*g_length)
             b = (identifier >> i) & 1
             if b: g_val = rand_bits & right_mask  # The right half of rand_bits
             else: g_val = (rand_bits >> g_length) # The left half of rand_bits
+#            print(f"id={bin(identifier)},i={i},rand_bits={bin(rand_bits)},g_val={g_val},b={b},G={grp}")
         return ModularInt(g_val,grp.order) # Output must be l bits, so take g_val % G.order
     return φ
 
@@ -27,6 +28,24 @@ def Get_phi_prime(identifier:int,φ):
 def prefix(f, n: int):
     def g(*args, **kwargs):
         full = f(*args, **kwargs)
-        truncated = bin(full.value)[2:2+n]
-        return int(truncated, 2)
+        full_bin = bin(full.value)
+        msb = full_bin[2:3]
+        new_truncate=full_bin[3:2+n+1]
+        old_truncate=full_bin[2:2+n]
+        version="old"
+#        print(f"full={full},full_bin={full_bin},msb={msb},truncated={truncated}") 
+        if (version=="new"):
+            #do the optimization of searching for 10^d instead of 0^d from
+            #optimizations and applications
+            #makes things speedy
+            if (msb == "1"):
+                if (new_truncate == ''):
+                    #stops some annoying error with null strings
+                    return 0
+                return int(new_truncate, 2)
+            else:
+                #doesn't matter as long as it isn't zero
+                return 1
+        else:
+            return int(old_truncate,2)
     return g

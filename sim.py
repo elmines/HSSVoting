@@ -4,6 +4,7 @@ import random
 import argparse
 import sys
 import operator
+import time
 from functools import reduce
 
 # Local
@@ -55,7 +56,10 @@ if __name__ == "__main__":
     λ          =  8           if not args.security else args.security
     δ          = math.exp(-4) if not args.error    else args.error
     iterations = 100          if not args.run      else args.run
-
+    start = time.time()
     if   args.prog == "vote_count": sim_vote_count(n, λ, δ, iterations)
     elif args.prog == "unan":       sim_unan(n, λ, δ, iterations)
     else:                           sys.stderr.write(f"Invalid --prog \"{args.prog}\"\n")
+    end = time.time()
+    time_taken = end-start
+    print(f"time for {iterations} iterations and {n} votes: {time_taken}")
