@@ -45,7 +45,7 @@ def prefix(f, n: int):
         msb = full_bin[2:3]
         new_truncate=full_bin[3:2+n+1]
         old_truncate=full_bin[2:2+n]
-        version="old"
+        version="new"
 #        print(f"full={full},full_bin={full_bin},msb={msb},truncated={truncated}") 
         if (version=="new"):
             #do the optimization of searching for 10^d instead of 0^d from
