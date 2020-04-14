@@ -13,7 +13,6 @@ def PRFGen(grp: ModularGroup):
         λ = len(id_bits)
         g_val = g.value
         for i in range(λ):
-            rand_bits = Random(g_val).getrandbits(2*g_length)
             rng.seed(g_val)
             rand_bits = rng.getrandbits(2*g_length)
             b = (identifier >> i) & 1
