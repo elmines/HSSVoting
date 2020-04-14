@@ -11,20 +11,18 @@ from functools import reduce
 from hss import *
 
 def sim_vote_count(n, λ, δ, iterations):
-    scheme = gen(λ)
     program = make_sum_program(n)
     M = n.bit_length()
     checker = lambda w, results: sum(w) == results[0]
-    simulator = Simulator(scheme, program, M, δ, checker)
+    simulator = Simulator(λ, program, M, δ, checker)
     input_gen = lambda: [random.getrandbits(1) for _ in range(n)]
     simulator.simulate(input_gen, iterations, verbose=True)
 
 def sim_unan(n, λ, δ, iterations):
-    scheme = gen(λ)
     program = make_conjunction_program(n)
     M = 1
     checker = lambda w, results: reduce(operator.mul, w) == results[0]
-    simulator = Simulator(scheme, program, M, δ, checker)
+    simulator = Simulator(λ, program, M, δ, checker)
 
     i = 0
     def input_gen():
@@ -40,7 +38,6 @@ def sim_unan(n, λ, δ, iterations):
 
     simulator.simulate(input_gen, iterations, verbose=True)
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simulate HSS with various RMS programs")
 
@@ -53,7 +50,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     n          = 5            if not args.n        else args.n
-    λ          = 12           if not args.security else args.security
+    λ          = 14           if not args.security else args.security
     δ          = 0.1          if not args.error    else args.error
     iterations = 100          if not args.run      else args.run
     start = time.time()
