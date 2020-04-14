@@ -53,8 +53,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     n          = 5            if not args.n        else args.n
-    λ          =  8           if not args.security else args.security
-    δ          = math.exp(-4) if not args.error    else args.error
+    λ          = 12           if not args.security else args.security
+    δ          = 0.1          if not args.error    else args.error
     iterations = 100          if not args.run      else args.run
     start = time.time()
     if   args.prog == "vote_count": sim_vote_count(n, λ, δ, iterations)

@@ -39,26 +39,12 @@ def Get_phi_prime(identifier:int,φ):
 	return phi_prime
 
 def prefix(f, n: int):
-    def g(*args, **kwargs):
-        full = f(*args, **kwargs)
-        full_bin = bin(full.value)
-        msb = full_bin[2:3]
-        new_truncate=full_bin[3:2+n+1]
-        old_truncate=full_bin[2:2+n]
-        version="new"
-#        print(f"full={full},full_bin={full_bin},msb={msb},truncated={truncated}") 
-        if (version=="new"):
-            #do the optimization of searching for 10^d instead of 0^d from
-            #optimizations and applications
-            #makes things speedy
-            if (msb == "1"):
-                if (new_truncate == ''):
-                    #stops some annoying error with null strings
-                    return 0
-                return int(new_truncate, 2)
-            else:
-                #doesn't matter as long as it isn't zero
-                return 1
-        else:
-            return int(old_truncate,2)
-    return g
+    def new_ver(*args, **kwargs):
+        full_bin = bin(f(*args, **kwargs).value)
+        if full_bin[2] == "1":
+            new_truncate = full_bin[3:3+n] 
+            return int(new_truncate,2) if new_truncate else 0
+        return 0
+    def old_ver(*args, **kwargs):
+        return int(bin(f(*args, **kwargs).value)[2:2+n], 2)
+    return new_ver
